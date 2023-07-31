@@ -71,14 +71,14 @@ server <- function(input, output, session) {
                     list(name = "year", title = T("Year"), content = "numeric"),
                     list(name = "step", title = T("Step"), content = "numeric"),
                     list(name = "area", title = T("Area")),
-                    if (input[[genId('catchability')]] == 'weight')
+                    if (identical(input[[genId('catchability')]], 'weight'))
                         list(name = "weight", title = T("Landings (tonnes)"), content = "numeric")
                     else
                         list(name = "number", title = T("Landings (count)"), content = "numeric")),
                 values = list(type = "bins"),
                 value = merge_notnull(rev.expand.grid(
                     year = seq(input$time_year_min, input$time_year_max),
-                    step = if (input[[genId('step')]] > 0) input[[genId('step')]] else seq_len(input$time_steps),
+                    step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_steps),
                     area = input$area_name,
                     stringsAsFactors = TRUE), isolate(input[[genDfId('quota')]]), all.x = TRUE),
                 orientation = 'horizontal'),

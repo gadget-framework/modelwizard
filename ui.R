@@ -17,7 +17,7 @@ timestep_choices = list(
     "Monthly (12)" = 12)
 names(timestep_choices) <- vapply(names(timestep_choices), T, character(1))
 
-navbarPage(id = "nav", windowTitle = branding_name,
+navbarPage(id = "nav", windowTitle = branding_name, lang = 'en',
   title = div(
     span(branding_name),
     a(icon("github", lib = "font-awesome"),

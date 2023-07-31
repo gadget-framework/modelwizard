@@ -101,7 +101,7 @@ server <- function(input, output, session) {
             ""),
         hr()))
 
-    output$fleets_data <- renderUI(do.call(tabsetPanel, lapply(grep('^(?:fleet|abund)_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+    output$fleets_data <- renderUI(do.call(tabsetPanel, c(list(id = "fleets_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]
@@ -148,6 +148,7 @@ server <- function(input, output, session) {
 
         tabPanel(
             sprintf("%s: %s", input[[genId('name')]], T(df_type)),
+            value = genId(df_type, 'tab'),
             hodfr::hodfr(
                 genId(df_type, 'df'),
                 fields = df_fields,
@@ -156,5 +157,10 @@ server <- function(input, output, session) {
                     do.call(rev.expand.grid, df_values),
                     isolate(input[[genId(df_type, 'df')]]), all.x = TRUE),
                 orientation = 'horizontal'))
-    })))
+    }))))
+    observeEvent(input$fleets_data_tabs, {
+        # NB: handsondataframe won't render properly if table isn't visible,
+        # so explicitly tell the targeted tab to re-render when we switch
+        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
+    })
 }

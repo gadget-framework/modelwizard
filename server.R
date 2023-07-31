@@ -8,6 +8,12 @@ merge_notnull <- function (x, y, ...) {
     if (is.null(y) || !is.data.frame(y)) x else merge(x, y, ...)
 }
 
+# As list(), but with names and values swapped around
+list.swapnames <- function (...) {
+    inp <- list(...)
+    structure(as.list(names(inp)), names = inp)
+}
+
 
 # Placeholder for translation machinations
 T <- function (s) s

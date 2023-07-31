@@ -60,9 +60,20 @@ server <- function(input, output, session) {
         selectInput(genId('catchability'), T("Quota in"), structure(
             c('weight', 'number'),
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('catchability')]])),
-        selectInput(genId('landings'), T("Landings observations in"), structure(
-            c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
+        div(class="row",
+            div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('landings')]]))),
+            div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('ldist')]]))),
+            div(class="col-md-3", selectInput(genId('aldist'), T("Age-Length distribution"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
+            ""),
         hr()))
 
     output$fleets_data <- renderUI(do.call(tagList, lapply(grep('^fleet_\\d+_name$', names(input), value = TRUE), function (nf) {

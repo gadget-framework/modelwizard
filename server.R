@@ -38,6 +38,9 @@ server <- function(input, output, session) {
     timestepChoices <- reactive(structure(
         as.list(seq(0, input$time_steps)),
         names = c(T("Every timestep"), seq_len(input$time_steps))))
+    hideIfOneTimestep <- function (...) {
+        div(..., style=if (input$time_steps == 1) 'display: none' else '')
+    }
 
     output$stocks <- reactiveSections(input, 'stock', function (genId) tagList(
         textInput(genId('name'), NULL, label=T("Identifier")),
@@ -51,12 +54,14 @@ server <- function(input, output, session) {
             div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), 10)),
             ""),
         numericInput(genId('max_lgg'), NULL, label=T("Maximum growth in a single step, in lengthgroups")),
-        selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
+        hideIfOneTimestep(
+            selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
 
     output$fleets <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
-        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
+        hideIfOneTimestep(
+            selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         selectInput(genId('quota'), T("Quota in"), structure(
             c('weight', 'number'),
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('quota')]])),
@@ -78,6 +83,8 @@ server <- function(input, output, session) {
 
     output$abund <- reactiveSections(input, 'abund', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
+        hideIfOneTimestep(
+            selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         div(class="row",
             div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
                 none = T('No data'),

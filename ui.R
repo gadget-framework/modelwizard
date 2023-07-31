@@ -62,7 +62,7 @@ navbarPage(id = "nav", windowTitle = branding_name, lang = 'en',
       hr(),
 
       h3("Abundance indices"),
-      uiOutput("abund_idx"),
+      uiOutput("abund"),
       hr(),
       ""),
 

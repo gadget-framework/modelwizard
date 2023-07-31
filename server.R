@@ -76,7 +76,25 @@ server <- function(input, output, session) {
             ""),
         hr()))
 
-    output$fleets_data <- renderUI(do.call(tabsetPanel, lapply(grep('^fleet_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+    output$abund <- reactiveSections(input, 'abund', function (genId) tagList(
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
+        div(class="row",
+            div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('landings')]]))),
+            div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('ldist')]]))),
+            div(class="col-md-3", selectInput(genId('aldist'), T("Age-Length distribution"), list.swapnames(
+                none = T('No data'),
+                weight = T('Tonnes'),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
+            ""),
+        hr()))
+
+    output$fleets_data <- renderUI(do.call(tabsetPanel, lapply(grep('^(?:fleet|abund)_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]
@@ -132,8 +150,4 @@ server <- function(input, output, session) {
                     isolate(input[[genId(df_type, 'df')]]), all.x = TRUE),
                 orientation = 'horizontal'))
     })))
-
-    output$abundance <- reactiveSections(input, 'abund_idx', function (genId) tagList(
-        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
-        hr()))
 }

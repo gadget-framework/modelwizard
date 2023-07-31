@@ -34,27 +34,27 @@ server <- function(input, output, session) {
             div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), 10)),
             ""),
         numericInput(genId('max_lgg'), NULL, label=T("Maximum growth in a single step, in lengthgroups")),
-        selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = input[[genId('step')]]),
+        selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
 
     output$fleets_comm <- reactiveSections(input, 'fleet_comm', function (genId) tagList(
-        textInput(genId('name'), input[[genId('name')]], label=T("Fleet identifier")),
-        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = input[[genId('step')]]),
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
+        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
         selectInput(genId('catchability'), T("Quota in"), structure(
             c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = input[[genId('catchability')]]),
+            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('catchability')]])),
         selectInput(genId('landings'), T("Landings observations in"), structure(
             c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = input[[genId('landings')]]),
+            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
         hr()))
 
     output$fleets_survey <- reactiveSections(input, 'fleet_survey', function (genId) tagList(
-        textInput(genId('name'), input[[genId('name')]], label=T("Fleet identifier")),
-        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = input[[genId('step')]]),
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
+        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
         hr()))
 
     output$abundance <- reactiveSections(input, 'abund_idx', function (genId) tagList(
-        textInput(genId('name'), input[[genId('name')]], label=T("Abundance Index identifier")),
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         hr()))
 
     output$data_tables <- renderUI(do.call(tagList, lapply(grep('^fleet_survey_\\d+_name$', names(input), value = TRUE), function (nf) {
@@ -81,5 +81,3 @@ server <- function(input, output, session) {
             hr())
     })))
 }
-
-

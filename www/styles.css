@@ -1,0 +1,4 @@
+/* shiny::modalDialog specifies xl as a size option, but has no corresponding CSS  */
+.modal-xl {
+  width: 99%;
+}

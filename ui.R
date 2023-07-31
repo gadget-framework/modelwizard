@@ -24,6 +24,7 @@ navbarPage(id = "nav", windowTitle = branding_name, lang = 'en',
       href="https://github.com/gadget-framework/modelwizard",
       class="navbar-brand",
       style="position: absolute; top: 0; right: 0")),
+  header = tag('link', list(href="styles.css", rel="stylesheet")),
 
   tabPanel(T("Load / save"),
       div(class="row",

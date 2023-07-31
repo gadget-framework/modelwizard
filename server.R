@@ -57,9 +57,9 @@ server <- function(input, output, session) {
     output$fleets <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
-        selectInput(genId('catchability'), T("Quota in"), structure(
+        selectInput(genId('quota'), T("Quota in"), structure(
             c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('catchability')]])),
+            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('quota')]])),
         div(class="row",
             div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
                 none = T('No data'),
@@ -76,36 +76,61 @@ server <- function(input, output, session) {
             ""),
         hr()))
 
-    output$fleets_data <- renderUI(do.call(tagList, lapply(grep('^fleet_\\d+_name$', names(input), value = TRUE), function (nf) {
-        base_name <- gsub('_name$', '', nf)
-        genId <- function (x) paste0(base_name, '_', x)
-        genDfId <- function (x) paste0('dt_', base_name, '_', x)
-        tagList(
-            h3(sprintf(T("Quota: %s"), input[[nf]])),
+    output$fleets_data <- renderUI(do.call(tabsetPanel, lapply(grep('^fleet_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+        parts <- strsplit(df_inp_name, "_")[[1]]
+        base_name <- paste(parts[[1]], parts[[2]], sep = "_")
+        df_type <- parts[[3]]
+        genId <- function (...) paste(c(base_name, ...), collapse = "_")
+        # NB: Assume there's only one stock for now
+        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
+
+        if (input[[df_inp_name]] == 'none') return(NULL)
+        df_fields <- list(
+            list(name = "year", title = T("Year"), content = "numeric"),
+            list(name = "step", title = T("Step"), content = "numeric"),
+            list(name = "area", title = T("Area")))
+        df_values <- list(
+            year = seq(input$time_year_min, input$time_year_max),
+            step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_steps),
+            area = input$area_name)
+
+        if (df_type == 'ldist' || df_type == 'aldist') {
+            df_fields <- c(df_fields, list(
+                list(name = "length", title = T("Length"))))
+            df_values <- c(df_values, list(
+                length = levels(cut(0, c(seq(
+                    input[[genStockId('lg_min')]],
+                    input[[genStockId('lg_max')]],
+                    input[[genStockId('lg_size')]]), Inf), right = FALSE))))
+        }
+
+        if (df_type == 'adist' || df_type == 'aldist') {
+            df_fields <- c(df_fields, list(
+                list(name = "age", title = T("Age"))))
+            df_values <- c(df_values, list(
+                age = seq(
+                    input[[genStockId('age_min')]],
+                    input[[genStockId('age_max')]])))
+        }
+
+        if (identical(input[[df_inp_name]], 'weight')) {
+            df_fields <- c(df_fields, list(
+                list(name = "weight", title = T("Landings (tonnes)"), content = "numeric")))
+        } else {
+            df_fields <- c(df_fields, list(
+                list(name = "number", title = T("Landings (count)"), content = "numeric")))
+        }
+
+        tabPanel(
+            sprintf("%s: %s", input[[genId('name')]], T(df_type)),
             hodfr::hodfr(
-                genDfId('quota'),
-                fields = list(
-                    list(name = "year", title = T("Year"), content = "numeric"),
-                    list(name = "step", title = T("Step"), content = "numeric"),
-                    list(name = "area", title = T("Area")),
-                    if (identical(input[[genId('catchability')]], 'weight'))
-                        list(name = "weight", title = T("Landings (tonnes)"), content = "numeric")
-                    else
-                        list(name = "number", title = T("Landings (count)"), content = "numeric")),
+                genId(df_type, 'df'),
+                fields = df_fields,
                 values = list(type = "bins"),
-                value = merge_notnull(rev.expand.grid(
-                    year = seq(input$time_year_min, input$time_year_max),
-                    step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_steps),
-                    area = input$area_name,
-                    stringsAsFactors = TRUE), isolate(input[[genDfId('quota')]]), all.x = TRUE),
-                orientation = 'horizontal'),
-            h3(sprintf(T("Landings: %s"), input[[nf]])),
-            hodfr::hodfr(paste0('dt_', base_name, '_landings'),
-                fields = list(
-                    list(name = "number", title = T("Landings"))),
-                values = list(type = "bins"),
-                orientation = 'horizontal'),
-            hr())
+                value = merge_notnull(
+                    do.call(rev.expand.grid, df_values),
+                    isolate(input[[genId(df_type, 'df')]]), all.x = TRUE),
+                orientation = 'horizontal'))
     })))
 
     output$abundance <- reactiveSections(input, 'abund_idx', function (genId) tagList(

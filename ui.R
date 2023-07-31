@@ -56,12 +56,8 @@ navbarPage(id = "nav", windowTitle = branding_name,
       h3("Stock"),
       uiOutput("stocks"),
 
-      h3("Commercial fleets"),
-      uiOutput("fleets_comm"),
-      hr(),
-
-      h3("Survey fleets"),
-      uiOutput("fleets_survey"),
+      h3("Fleets"),
+      uiOutput("fleets"),
       hr(),
 
       h3("Abundance indices"),

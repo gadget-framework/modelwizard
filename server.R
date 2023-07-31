@@ -48,7 +48,7 @@ server <- function(input, output, session) {
         selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
 
-    output$fleets_comm <- reactiveSections(input, 'fleet_comm', function (genId) tagList(
+    output$fleets <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
         selectInput(genId('catchability'), T("Quota in"), structure(
@@ -59,22 +59,7 @@ server <- function(input, output, session) {
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
         hr()))
 
-    output$fleets_survey <- reactiveSections(input, 'fleet_survey', function (genId) tagList(
-        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
-        selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]])),
-        selectInput(genId('catchability'), T("Quota in"), structure(
-            c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('catchability')]])),
-        selectInput(genId('landings'), T("Landings observations in"), structure(
-            c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
-        hr()))
-
-    output$abundance <- reactiveSections(input, 'abund_idx', function (genId) tagList(
-        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
-        hr()))
-
-    output$fleets_survey_data <- renderUI(do.call(tagList, lapply(grep('^fleet_survey_\\d+_name$', names(input), value = TRUE), function (nf) {
+    output$fleets_data <- renderUI(do.call(tagList, lapply(grep('^fleet_\\d+_name$', names(input), value = TRUE), function (nf) {
         base_name <- gsub('_name$', '', nf)
         genId <- function (x) paste0(base_name, '_', x)
         genDfId <- function (x) paste0('dt_', base_name, '_', x)
@@ -105,4 +90,8 @@ server <- function(input, output, session) {
                 orientation = 'horizontal'),
             hr())
     })))
+
+    output$abundance <- reactiveSections(input, 'abund_idx', function (genId) tagList(
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
+        hr()))
 }

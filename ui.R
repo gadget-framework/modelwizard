@@ -70,7 +70,7 @@ navbarPage(id = "nav", windowTitle = branding_name,
       ""),
 
   tabPanel(T("Data"),
-      uiOutput("data_tables"),
+      uiOutput("fleets_survey_data"),
       ""),
 
   tabPanel(T("Parameters"),

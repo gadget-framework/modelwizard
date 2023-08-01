@@ -5,6 +5,8 @@ withCallingHandlers({
     install.packages("shinycssloaders")
     remotes::install_github("shuttlethread/hodfr")
 
+    install.packages("openxlsx")
+
     remotes::install_github("gadget-framework/gadget3")  # TODO: New release
 }, warning = stop)
 

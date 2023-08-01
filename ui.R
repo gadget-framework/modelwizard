@@ -17,7 +17,7 @@ timestep_choices = list(
     "Monthly (12)" = 12)
 names(timestep_choices) <- vapply(names(timestep_choices), T, character(1))
 
-navbarPage(id = "nav", windowTitle = branding_name, lang = 'en',
+navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
   title = div(
     span(branding_name),
     a(icon("github", lib = "font-awesome"),
@@ -26,20 +26,17 @@ navbarPage(id = "nav", windowTitle = branding_name, lang = 'en',
       style="position: absolute; top: 0; right: 0")),
   header = tag('link', list(href="styles.css", rel="stylesheet")),
 
-  tabPanel(T("Load / save"),
+  tabPanel(T("Specification"),
       div(class="row",
           div(class="col-md-3",
-              fileInput('loadCSV', T('Load spreadsheet'),
+              fileInput('file_load', T('Load spreadsheet'),
                   accept = c('text/csv', 'text/comma-separated-values', 'text/tab-separated-values', 'text/plain', '.csv', '.tsv')),
-              div(style = "margin-top: -15px", span("...or"), actionLink("loadDemo", T("Load demo data")))),
+              div(style = "margin-top: -15px", span("...or"), actionLink("file_load_demo_act", T("Load demo data")))),
           div(class="col-md-3",
-              textInput('filename', NULL, label=T("Filename to save as"))),
+              textInput('file_name', 'modelwizard', label=T("Filename to save as"))),
           div(class="col-md-3",
-              downloadButton("saveCSV", T("Save data to CSV"), style = "margin-top: 25px"))),
-      h3('Data description'),
-      ""),
+              downloadButton("file_save_act", T("Save data to spreadsheet"), style = "margin-top: 25px"))),
 
-  tabPanel(T("Specification"),
       h3(T("Area")),
       textInput('area_name', 'all', label=T("Area name")),
       hr(),

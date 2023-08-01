@@ -21,16 +21,16 @@ T <- function (s) s
 # Populate a uiOutput section with an array of fields
 reactiveSections <- function (input, val_name, ui_func, default_count = 0, button_add = TRUE, button_remove = TRUE) {
     rv <- reactiveVal(default_count, paste0(val_name, ' count'))
-    observeEvent(input[[paste0(val_name, '_add')]], { rv(rv() + 1) })
-    observeEvent(input[[paste0(val_name, '_remove')]], { rv(max(0, rv() - 1)) })
+    observeEvent(input[[paste0(val_name, '_add_act')]], { rv(rv() + 1) })
+    observeEvent(input[[paste0(val_name, '_remove_act')]], { rv(max(0, rv() - 1)) })
     return(renderUI(do.call(tagList, c(
         lapply(seq_len(rv()), function (i) {
             genId <- function (s) sprintf('%s_%d_%s', val_name, i, s)
             return(ui_func(genId))
         }),
         list(
-            if (button_add) actionButton(paste0(val_name, '_add'), T("Add new")) else "",
-            if (button_remove) actionButton(paste0(val_name, '_remove'), T("Remove")) else "",
+            if (button_add) actionButton(paste0(val_name, '_add_act'), T("Add new")) else "",
+            if (button_remove) actionButton(paste0(val_name, '_remove_act'), T("Remove")) else "",
             "")))))
 }
 
@@ -41,6 +41,31 @@ server <- function(input, output, session) {
     hideIfOneTimestep <- function (...) {
         div(..., style=if (input$time_steps == 1) 'display: none' else '')
     }
+
+    # File I/O ################################################################
+
+    observeEvent(input$file_load_act, {
+        updateTextInput(session, "filename", value = gsub('.\\w+$', '', input$loadFile$name))
+    })
+    output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
+        wb <- openxlsx::createWorkbook()
+        openxlsx::addWorksheet(wb, sheetName = "Specification",)
+        specRow <- 1
+        for (n in names(input)) {
+            if (startsWith(n, "file_") || endsWith(n, "_act") || endsWith(n, "_tabs")) {
+                # Ignore navigation / tab controls
+            } else if (identical(n, "max")) {
+                # Ignore HODFR dimension inputs
+            } else if (endsWith(n, "_df")) {
+                openxlsx::addWorksheet(wb, sheetName = n)
+                openxlsx::writeDataTable(wb, sheet = n, input[[n]])
+            } else {
+                openxlsx::writeData(wb, sheet = 1, list(n, input[[n]]), startRow = specRow)
+                specRow <- specRow + 1
+            }
+        }
+        openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
+    })
 
     # Stocks ##################################################################
 
@@ -169,4 +194,6 @@ server <- function(input, output, session) {
         # so explicitly tell the targeted tab to re-render when we switch
         hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
     })
+    # Always render data, so if we hit save without visiting the tab it's been computed
+    outputOptions(output, "fleets_data", suspendWhenHidden = FALSE)
 }

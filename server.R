@@ -42,6 +42,8 @@ server <- function(input, output, session) {
         div(..., style=if (input$time_steps == 1) 'display: none' else '')
     }
 
+    # Stocks ##################################################################
+
     output$stocks <- reactiveSections(input, 'stock', function (genId) tagList(
         textInput(genId('name'), NULL, label=T("Identifier")),
         div(class="row",
@@ -57,6 +59,8 @@ server <- function(input, output, session) {
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
+
+    # Fleet / abundance indices ###############################################
 
     output$fleets <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
@@ -100,6 +104,8 @@ server <- function(input, output, session) {
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
         hr()))
+
+    # Fleet data ##############################################################
 
     output$fleets_data <- renderUI(do.call(tabsetPanel, c(list(id = "fleets_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]

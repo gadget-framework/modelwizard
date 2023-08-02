@@ -226,6 +226,15 @@ server <- function(input, output, session) {
             step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_1_steps),
             area = input$area_1_name)
 
+        if (df_type == 'adist' || df_type == 'aldist') {
+            df_fields <- c(df_fields, list(
+                list(name = "age", title = T("Age"))))
+            df_values <- c(df_values, list(
+                age = seq(
+                    input[[genStockId('age_min')]],
+                    input[[genStockId('age_max')]])))
+        }
+
         if (df_type == 'ldist' || df_type == 'aldist') {
             df_fields <- c(df_fields, list(
                 list(name = "length", title = T("Length"))))
@@ -234,15 +243,6 @@ server <- function(input, output, session) {
                     input[[genStockId('lg_min')]],
                     input[[genStockId('lg_max')]],
                     input[[genStockId('lg_size')]]), Inf), right = FALSE))))
-        }
-
-        if (df_type == 'adist' || df_type == 'aldist') {
-            df_fields <- c(df_fields, list(
-                list(name = "age", title = T("Age"))))
-            df_values <- c(df_values, list(
-                age = seq(
-                    input[[genStockId('age_min')]],
-                    input[[genStockId('age_max')]])))
         }
 
         if (identical(input[[df_inp_name]], 'weight')) {

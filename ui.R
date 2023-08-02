@@ -64,7 +64,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       hr(),
       ""),
 
-  tabPanel(T("Data"),
+  tabPanel(T("Data"), value = 'data',
       uiOutput("fleets_data"),
       ""),
 

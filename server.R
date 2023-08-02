@@ -265,12 +265,10 @@ server <- function(input, output, session) {
                     isolate(input[[genId(df_type, 'df')]]), all.x = TRUE),
                 orientation = 'horizontal'))
     }))))
-    observeEvent(input$nav_tabs, {
+    observeEvent(input$nav_tabs, if (input$nav_tabs == "data") {
         # NB: handsondataframe won't render properly if table isn't visible,
         # so explicitly tell the targeted tab to re-render when we switch
-        if (input$nav_tabs == "Data") {
-            hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
-        }
+        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
     })
     observeEvent(input$fleets_data_tabs, {
         # NB: handsondataframe won't render properly if table isn't visible,

@@ -36,6 +36,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
               textInput('file_name', 'modelwizard', label=T("Filename to save as"))),
           div(class="col-md-3",
               downloadButton("file_save_act", T("Save data to spreadsheet"), style = "margin-top: 25px"))),
+      hr(),
 
       h3(T("Area")),
       textInput('area_1_name', 'all', label=T("Area name")),

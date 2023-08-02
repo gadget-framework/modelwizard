@@ -23,7 +23,7 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
     rv <- reactiveVal(default_count, paste0(val_name, ' count'))
     observeEvent(input[[paste0(val_name, '_add_act')]], { rv(rv() + 1) })
     observeEvent(input[[paste0(val_name, '_remove_act')]], { rv(max(0, rv() - 1)) })
-    return(renderUI(do.call(tagList, c(
+    return(list(count = rv, ui = renderUI(do.call(tagList, c(
         lapply(seq_len(rv()), function (i) {
             genId <- function (s) sprintf('%s_%d_%s', val_name, i, s)
             return(ui_func(genId))
@@ -31,7 +31,7 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
         list(
             if (button_add) actionButton(paste0(val_name, '_add_act'), T("Add new")) else "",
             if (button_remove) actionButton(paste0(val_name, '_remove_act'), T("Remove")) else "",
-            "")))))
+            ""))))))
 }
 
 server <- function(input, output, session) {
@@ -41,6 +41,7 @@ server <- function(input, output, session) {
     hideIfOneTimestep <- function (...) {
         div(..., style=if (input$time_steps == 1) 'display: none' else '')
     }
+    sect <- list()
 
     # File I/O ################################################################
 
@@ -69,7 +70,7 @@ server <- function(input, output, session) {
 
     # Stocks ##################################################################
 
-    output$stocks <- reactiveSections(input, 'stock', function (genId) tagList(
+    sect$stock <- reactiveSections(input, 'stock', function (genId) tagList(
         textInput(genId('name'), NULL, label=T("Identifier")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('lg_min'), T("Minimum length group"), 0)),
@@ -84,10 +85,11 @@ server <- function(input, output, session) {
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
+    output$stocks <- sect$stock$ui
 
     # Fleet / abundance indices ###############################################
 
-    output$fleets <- reactiveSections(input, 'fleet', function (genId) tagList(
+    sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         hideIfOneTimestep(
             selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
@@ -109,8 +111,9 @@ server <- function(input, output, session) {
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
         hr()))
+    output$fleets <- sect$fleet$ui
 
-    output$abund <- reactiveSections(input, 'abund', function (genId) tagList(
+    sect$abund <- reactiveSections(input, 'abund', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         hideIfOneTimestep(
             selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
@@ -129,6 +132,7 @@ server <- function(input, output, session) {
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
         hr()))
+    output$abund <- sect$abund$ui
 
     # Fleet data ##############################################################
 

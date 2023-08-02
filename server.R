@@ -39,6 +39,24 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
             ""))))))
 }
 
+# Extract a data.frame from section inputs
+extractDataFrame <- function (input, base_name) {
+    out <- list()
+    for (n in names(input)) {
+        if (endsWith(n, "_df")) next
+        m <- regmatches(n, regexec(paste0('^', base_name, '_(\\d+)_(.+)'), n))[[1]]
+        if (length(m) != 3) next
+        i <- m[[2]] ; key <- m[[3]]
+
+        # Place value in one of the list-of-lists tables
+        # NB: data.frames don't like gaps, otherwise would use one directly
+        if (!(key %in% names(out))) out[[key]] <- list()
+        out[[key]][[i]] <- input[[n]]
+    }
+    if (length(out) == 0) return(data.frame(name = c()))
+    return(as.data.frame(lapply(out, unlist)))
+}
+
 server <- function(input, output, session) {
     timestepChoices <- reactive(structure(
         as.list(seq(0, input$time_1_steps)),
@@ -101,42 +119,23 @@ server <- function(input, output, session) {
         wb <- openxlsx::createWorkbook()
 
         # Create initial sheets matching specification tables
-        specs <- list(time = list(), area = list(), stock = list(), fleet = list(), abund = list())
-        for (n in names(specs)) openxlsx::addWorksheet(wb, sheetName = n)
-
-        for (n in names(input)) {
-            if (startsWith(n, "file_") || endsWith(n, "_act") || endsWith(n, "_tabs")) {
-                # Ignore navigation / tab controls
-            } else if (identical(n, "max")) {
-                # Ignore HODFR dimension inputs
-            } else if (endsWith(n, "_df")) {
-                m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
-                if (length(m) != 3) stop("Unparsable input name: ", n)
-                ws_name <- paste(
-                    m[[3]],  # Table type
-                    input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
-                    sep = "_")
-
-                openxlsx::addWorksheet(wb, sheetName = ws_name)
-                openxlsx::writeDataTable(wb, sheet = ws_name, input[[n]])
-            } else {
-                m <- regmatches(n, regexec('^([a-z]+)_(\\d+)_(.+)', n))[[1]]
-                if (length(m) != 4) stop("Unparsable input name: ", n)
-                sect <- m[[2]] ; i <- m[[3]] ; key <- m[[4]]
-
-                # Place value in one of the list-of-lists tables
-                # NB: data.frames don't like gaps, otherwise would use one directly
-                if (!(key %in% names(specs[[sect]]))) specs[[sect]][[key]] <- list()
-                specs[[sect]][[key]][[i]] <- input[[n]]
-            }
+        for (base_name in c('time', 'area', 'stock', 'fleet', 'abund')) {
+            openxlsx::addWorksheet(wb, sheetName = base_name)
+            df <- extractDataFrame(input, base_name)
+            if (nrow(df) > 0) openxlsx::writeDataTable(wb, sheet = base_name, df)
         }
-        for (n in names(specs)) {
-            if (length(specs[[n]]) == 0) {
-                openxlsx::writeData(wb, sheet = n, "name")
-            } else {
-                df <- as.data.frame(lapply(specs[[n]], unlist))
-                openxlsx::writeDataTable(wb, sheet = n, df)
-            }
+
+        # Extract extra data
+        for (n in names(input)) {
+            m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
+            if (length(m) != 3) next
+            ws_name <- paste(
+                m[[3]],  # Table type
+                input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
+                sep = "_")
+
+            openxlsx::addWorksheet(wb, sheetName = ws_name)
+            openxlsx::writeDataTable(wb, sheet = ws_name, input[[n]])
         }
         openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
     })

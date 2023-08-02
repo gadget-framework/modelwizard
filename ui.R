@@ -52,14 +52,14 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
           ""),
       hr(),
 
-      h3("Stock"),
+      h3(T("Stock")),
       uiOutput("stocks"),
 
-      h3("Fleets"),
+      h3(T("Fleets")),
       uiOutput("fleets"),
       hr(),
 
-      h3("Abundance indices"),
+      h3(T("Abundance indices")),
       uiOutput("abund"),
       hr(),
       ""),

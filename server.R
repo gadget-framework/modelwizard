@@ -95,17 +95,17 @@ server <- function(input, output, session) {
     # Stocks ##################################################################
 
     sect$stock <- reactiveSections(input, 'stock', function (genId) tagList(
-        textInput(genId('name'), NULL, label=T("Identifier")),
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Identifier")),
         div(class="row",
-            div(class="col-md-3", numericInput(genId('lg_min'), T("Minimum length group"), 0)),
-            div(class="col-md-3", numericInput(genId('lg_max'), T("Maximum length group"), 10)),
-            div(class="col-md-3", numericInput(genId('lg_size'), T("Length group size"), 10)),
+            div(class="col-md-3", numericInput(genId('lg_min'), T("Minimum length group"), isolate(input[[genId('lg_min')]]))),
+            div(class="col-md-3", numericInput(genId('lg_max'), T("Maximum length group"), isolate(input[[genId('lg_max')]]))),
+            div(class="col-md-3", numericInput(genId('lg_size'), T("Length group size"), isolate(input[[genId('lg_size')]]))),
             ""),
         div(class="row",
-            div(class="col-md-3", numericInput(genId('age_min'), T("Minimum age"), 0)),
-            div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), 10)),
+            div(class="col-md-3", numericInput(genId('age_min'), T("Minimum age"), isolate(input[[genId('age_min')]]))),
+            div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), isolate(input[[genId('age_max')]]))),
             ""),
-        numericInput(genId('max_lgg'), NULL, label=T("Maximum growth in a single step, in lengthgroups")),
+        numericInput(genId('max_lgg'), isolate(input[[genId('max_lgg')]]), label=T("Maximum growth in a single step, in lengthgroups")),
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)

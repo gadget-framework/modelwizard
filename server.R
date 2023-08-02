@@ -14,6 +14,11 @@ list.swapnames <- function (...) {
     structure(as.list(names(inp)), names = inp)
 }
 
+# Wait for renderUI blocks to do their thing, then carry on
+# https://github.com/rstudio/shiny/issues/3348#issuecomment-810727477
+executeAtNextInput <- function(session = getDefaultReactiveDomain(), values = reactiveValuesToList(session$input), expr) {
+  observeEvent(once = TRUE, values, { force(expr) }, ignoreInit = TRUE)
+}
 
 # Placeholder for translation machinations
 T <- function (s) s
@@ -45,9 +50,53 @@ server <- function(input, output, session) {
 
     # File I/O ################################################################
 
-    observeEvent(input$file_load_act, {
-        updateTextInput(session, "filename", value = gsub('.\\w+$', '', input$loadFile$name))
+    observeEvent(input$file_load, {
+        updateTextInput(session, "file_name", value = gsub('.\\w+$', '', input$file_load$name))
+        wb <- openxlsx::loadWorkbook(input$file_load$datapath)
+        sheet_names <- openxlsx::getSheetNames(input$file_load$datapath)
+        name_mapping <- list()
+
+        # Pass 1: Set counts for sects
+        for (n in names(sect)) {
+            df <- openxlsx::read.xlsx(wb, n)
+            sect[[n]]$count(0)
+            sect[[n]]$count(nrow(df))
+        }
+
+        # Pass 2 (after UI recalculated): Set sect values
+        executeAtNextInput(session, expr = {
+            for (n in c('time', 'area', 'stock', 'fleet', 'abund')) {
+                df <- openxlsx::read.xlsx(wb, n)
+                if ('name' %in% names(df) && length(df$name) > 0) {
+                    # Add table's names to name mapping
+                    name_mapping <- c(name_mapping, structure(
+                        paste(n, seq_len(nrow(df)), sep = "_"),
+                        names = df$name))
+                }
+
+                for (row_n in seq_len(nrow(df))) {
+                    for (col_n in names(df)) {
+                        inp_name <- paste(c(n, row_n, col_n), collapse = "_")
+                        inp_value <- df[as.integer(row_n), col_n]
+                        updateTextInput(session, inp_name, value = inp_value)
+                    }
+                }
+            }
+
+            # Pass 3: Set data.frame values
+            executeAtNextInput(session, expr = {
+                for (n in sheet_names) {
+                    m <- regmatches(n, regexec('^([a-z]+)_(.+)', n))[[1]]
+                    if (length(m) != 3) next
+
+                    df <- openxlsx::read.xlsx(wb, n)
+                    df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
+                    hodfr::updateHodfrInput(session, df_name, value = df)
+                }
+            })
+        })
     })
+
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         wb <- openxlsx::createWorkbook()
 

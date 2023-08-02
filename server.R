@@ -36,10 +36,10 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
 
 server <- function(input, output, session) {
     timestepChoices <- reactive(structure(
-        as.list(seq(0, input$time_steps)),
-        names = c(T("Every timestep"), seq_len(input$time_steps))))
+        as.list(seq(0, input$time_1_steps)),
+        names = c(T("Every timestep"), seq_len(input$time_1_steps))))
     hideIfOneTimestep <- function (...) {
-        div(..., style=if (input$time_steps == 1) 'display: none' else '')
+        div(..., style=if (input$time_1_steps == 1) 'display: none' else '')
     }
     sect <- list()
 
@@ -50,19 +50,43 @@ server <- function(input, output, session) {
     })
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         wb <- openxlsx::createWorkbook()
-        openxlsx::addWorksheet(wb, sheetName = "Specification",)
-        specRow <- 1
+
+        # Create initial sheets matching specification tables
+        specs <- list(time = list(), area = list(), stock = list(), fleet = list(), abund = list())
+        for (n in names(specs)) openxlsx::addWorksheet(wb, sheetName = n)
+
         for (n in names(input)) {
             if (startsWith(n, "file_") || endsWith(n, "_act") || endsWith(n, "_tabs")) {
                 # Ignore navigation / tab controls
             } else if (identical(n, "max")) {
                 # Ignore HODFR dimension inputs
             } else if (endsWith(n, "_df")) {
-                openxlsx::addWorksheet(wb, sheetName = n)
-                openxlsx::writeDataTable(wb, sheet = n, input[[n]])
+                m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
+                if (length(m) != 3) stop("Unparsable input name: ", n)
+                ws_name <- paste(
+                    m[[3]],  # Table type
+                    input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
+                    sep = "_")
+
+                openxlsx::addWorksheet(wb, sheetName = ws_name)
+                openxlsx::writeDataTable(wb, sheet = ws_name, input[[n]])
             } else {
-                openxlsx::writeData(wb, sheet = 1, list(n, input[[n]]), startRow = specRow)
-                specRow <- specRow + 1
+                m <- regmatches(n, regexec('^([a-z]+)_(\\d+)_(.+)', n))[[1]]
+                if (length(m) != 4) stop("Unparsable input name: ", n)
+                sect <- m[[2]] ; i <- m[[3]] ; key <- m[[4]]
+
+                # Place value in one of the list-of-lists tables
+                # NB: data.frames don't like gaps, otherwise would use one directly
+                if (!(key %in% names(specs[[sect]]))) specs[[sect]][[key]] <- list()
+                specs[[sect]][[key]][[i]] <- input[[n]]
+            }
+        }
+        for (n in names(specs)) {
+            if (length(specs[[n]]) == 0) {
+                openxlsx::writeData(wb, sheet = n, "name")
+            } else {
+                df <- as.data.frame(lapply(specs[[n]], unlist))
+                openxlsx::writeDataTable(wb, sheet = n, df)
             }
         }
         openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
@@ -150,9 +174,9 @@ server <- function(input, output, session) {
             list(name = "step", title = T("Step"), content = "numeric"),
             list(name = "area", title = T("Area")))
         df_values <- list(
-            year = seq(input$time_year_min, input$time_year_max),
-            step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_steps),
-            area = input$area_name)
+            year = seq(input$time_1_year_min, input$time_1_year_max),
+            step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_1_steps),
+            area = input$area_1_name)
 
         if (df_type == 'ldist' || df_type == 'aldist') {
             df_fields <- c(df_fields, list(

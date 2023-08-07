@@ -165,14 +165,10 @@ server <- function(input, output, session) {
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         hideIfOneTimestep(
             selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
-        selectInput(genId('quota'), T("Quota in"), structure(
+        selectInput(genId('landings'), T("Landings in"), structure(
             c('weight', 'number'),
-            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('quota')]])),
+            names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
         div(class="row",
-            div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
-                none = T('No data'),
-                weight = T('Tonnes'),
-                number =  T('Number of individuals')), selected = isolate(input[[genId('landings')]]))),
             div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
                 none = T('No data'),
                 weight = T('Tonnes'),
@@ -190,7 +186,7 @@ server <- function(input, output, session) {
         hideIfOneTimestep(
             selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
         div(class="row",
-            div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
+            div(class="col-md-3", selectInput(genId('dist'), T("Aggregated observations"), list.swapnames(
                 none = T('No data'),
                 weight = T('Tonnes'),
                 number =  T('Number of individuals')), selected = isolate(input[[genId('landings')]]))),
@@ -208,7 +204,7 @@ server <- function(input, output, session) {
 
     # Fleet data ##############################################################
 
-    output$fleets_data <- renderUI(do.call(tabsetPanel, c(list(id = "fleets_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:quota|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+    output$fleets_data <- renderUI(do.call(tabsetPanel, c(list(id = "fleets_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:landings|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]

@@ -1,3 +1,5 @@
+source('./mw_gadget3.R')
+
 # expand.grid but with groupings right-to-left
 rev.expand.grid <- function (...) {
     out <- do.call(expand.grid, rev(list(...)))
@@ -55,6 +57,12 @@ extractDataFrame <- function (input, base_name) {
     }
     if (length(out) == 0) return(data.frame(name = c()))
     return(as.data.frame(lapply(out, unlist)))
+}
+
+extractAllDataFrames <- function (input) {
+    out <- c('time', 'area', 'stock', 'fleet', 'abund')
+    names(out) <- out
+    lapply(out, function (n) extractDataFrame(input, n))
 }
 
 server <- function(input, output, session) {
@@ -273,4 +281,12 @@ server <- function(input, output, session) {
     })
     # Always render data, so if we hit save without visiting the tab it's been computed
     outputOptions(output, "fleets_data", suspendWhenHidden = FALSE)
+
+    # Gadget3 script tab ######################################################
+    observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
+        output$script_g3_text <- renderText(mw_g3_script(
+            spec = extractAllDataFrames(input),
+            compile = FALSE,
+            run = FALSE))
+    })
 }

@@ -69,7 +69,10 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       ""),
 
   tabPanel(T("Parameters"),
+      ""),
 
+  tabPanel(T("Gadget3 script"), value = 'script_g3',
+      verbatimTextOutput('script_g3_text'),
       ""),
 
   footer = includeHTML("footer.html"))

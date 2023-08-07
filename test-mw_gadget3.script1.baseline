@@ -1,0 +1,118 @@
+
+library(gadget3)
+
+actions <- list()
+
+
+# Create area definitions ####################
+area_names <- structure(1:2, names = c("IV4", "IV5"))
+
+
+# Create time definitions ####################
+
+actions_time <- list(
+  g3a_time(
+    1999L, 2004L,
+    step_lengths = c(3L, 3L, 3L, 3L)),
+  NULL)
+
+actions <- c(actions, actions_time)
+
+
+# Create stock definition for ling ####################
+ling <- g3_stock("ling", seq(30, 50, 10)) |>
+  g3s_livesonareas(area_names[c("IV4", "IV5")]) |>
+  g3s_age(30L, 50L)
+
+actions_ling <- list(
+  g3a_growmature(ling, g3a_grow_impl_bbinom(
+    maxlengthgroupgrowth = 5L)),
+  g3a_naturalmortality(ling, g3a_naturalmortality_exp()),
+  g3a_initialconditions_normalparam(ling),
+  g3a_renewal_normalparam(ling,
+    run_f = quote( age == stock__minage && !cur_year_projection )),
+  g3a_age(ling),
+  NULL)
+
+actions_likelihood_ling <- list(
+  g3l_understocking(list(ling), weight = 1e+08, nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_ling, actions_likelihood_ling)
+
+
+# Create fleet definition for comm ####################
+comm <- g3_fleet("comm") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
+actions_comm <- list(
+  g3a_predate_fleet(
+    comm,
+    list(ling),
+    suitabilities = g3_suitability_exponentiall50(
+        g3_parameterized("comm.alpha", by_stock = TRUE),
+        g3_parameterized("comm.l50", by_stock = TRUE)),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_comm", landings_comm, "number", areas = area_names))),
+  NULL)
+actions_likelihood_comm <- list(
+  g3l_catchdistribution(
+    "ldist_comm",
+    ldist_comm,
+    fleets = list(comm),
+    stocks = list(ling),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_comm, actions_likelihood_comm)
+
+
+# Create fleet definition for surv ####################
+surv <- g3_fleet("surv") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
+actions_surv <- list(
+  g3a_predate_fleet(
+    surv,
+    list(ling),
+    suitabilities = g3_suitability_exponentiall50(
+        g3_parameterized("surv.alpha", by_stock = TRUE),
+        g3_parameterized("surv.l50", by_stock = TRUE)),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_surv", landings_surv, "number", areas = area_names))),
+  NULL)
+actions_likelihood_surv <- list(
+  g3l_catchdistribution(
+    "aldist_surv",
+    aldist_surv,
+    fleets = list(surv),
+    stocks = list(ling),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_surv, actions_likelihood_surv)
+
+
+# Create abundance index for acoustic ####################
+actions_acoustic <- list(
+  NULL)
+actions_likelihood_acoustic <- list(
+
+  g3l_abundancedistribution(
+    "dist_acoustic",
+    dist_acoustic,
+    fleets = list(acoustic),
+    stocks = list(ling),
+    function_f = g3l_distribution_surveyindices_log(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_acoustic, actions_likelihood_acoustic)
+
+
+
+

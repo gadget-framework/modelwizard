@@ -164,7 +164,7 @@ server <- function(input, output, session) {
     sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         hideIfOneTimestep(
-            selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
+            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
         selectInput(genId('quota'), T("Quota in"), structure(
             c('weight', 'number'),
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('quota')]])),
@@ -188,7 +188,7 @@ server <- function(input, output, session) {
     sect$abund <- reactiveSections(input, 'abund', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         hideIfOneTimestep(
-            selectInput(genId('step'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
+            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
         div(class="row",
             div(class="col-md-3", selectInput(genId('dist'), T("Landings observations"), list.swapnames(
                 none = T('No data'),

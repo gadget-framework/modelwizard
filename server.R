@@ -6,9 +6,6 @@ rev.expand.grid <- function (...) {
     out <- out[,rev(seq_len(ncol(out)))]
     return(out)
 }
-merge_notnull <- function (x, y, ...) {
-    if (is.null(y) || !is.data.frame(y)) x else merge(x, y, ...)
-}
 
 # As list(), but with names and values swapped around
 list.swapnames <- function (...) {
@@ -261,6 +258,12 @@ server <- function(input, output, session) {
                 list(name = "number", title = T("Landings (count)"), content = "numeric")))
         }
 
+        df <- isolate(input[[genId(df_type, 'df')]])
+        if (is.null(df)) {
+            df <- do.call(rev.expand.grid, df_values)
+        } else {
+            df <- merge(do.call(rev.expand.grid, df_values), df, all.x = TRUE)
+        }
         tabPanel(
             sprintf("%s: %s", input[[genId('name')]], T(df_type)),
             value = genId(df_type, 'tab'),
@@ -268,9 +271,7 @@ server <- function(input, output, session) {
                 genId(df_type, 'df'),
                 fields = df_fields,
                 values = list(type = "bins"),
-                value = merge_notnull(
-                    do.call(rev.expand.grid, df_values),
-                    isolate(input[[genId(df_type, 'df')]]), all.x = TRUE),
+                value = df,
                 orientation = 'horizontal'))
     }))))
     observeEvent(input$nav_tabs, if (input$nav_tabs == "data") {

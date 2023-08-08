@@ -101,7 +101,7 @@ actions_${fleet_sym} <- list(
         g3_parameterized("${fleet_sym}.alpha", by_stock = TRUE),
         g3_parameterized("${fleet_sym}.l50", by_stock = TRUE)),
     catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata(${deparse1(data_name)}, ${data_sym}, "number", areas = area_names))),
+      g3_timeareadata(${deparse1(data_name)}, ${data_sym}, ${deparse1(r$landings)}, areas = area_names))),
   NULL)
 actions_likelihood_${fleet_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
   NULL)

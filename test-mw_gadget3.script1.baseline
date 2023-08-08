@@ -51,7 +51,7 @@ actions_comm <- list(
         g3_parameterized("comm.alpha", by_stock = TRUE),
         g3_parameterized("comm.l50", by_stock = TRUE)),
     catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata("landings_comm", landings_comm, "number", areas = area_names))),
+      g3_timeareadata("landings_comm", landings_comm, "weight", areas = area_names))),
   NULL)
 actions_likelihood_comm <- list(
   g3l_catchdistribution(
@@ -78,7 +78,7 @@ actions_surv <- list(
         g3_parameterized("surv.alpha", by_stock = TRUE),
         g3_parameterized("surv.l50", by_stock = TRUE)),
     catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata("landings_surv", landings_surv, "number", areas = area_names))),
+      g3_timeareadata("landings_surv", landings_surv, "weight", areas = area_names))),
   NULL)
 actions_likelihood_surv <- list(
   g3l_catchdistribution(

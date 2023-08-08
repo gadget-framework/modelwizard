@@ -6,7 +6,8 @@ withCallingHandlers({
     install.packages("shinycssloaders")
     remotes::install_github("shuttlethread/hodfr")
 
-    install.packages("openxlsx")
+    install.packages("readxl")
+    install.packages("writexl")
     install.packages("stringr")
 
     remotes::install_github("gadget-framework/gadget3", "more-defaults")  # TODO: New release

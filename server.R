@@ -41,28 +41,45 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
             ""))))))
 }
 
-# Extract a data.frame from section inputs
-extractDataFrame <- function (input, base_name) {
-    out <- list()
-    for (n in names(input)) {
-        if (endsWith(n, "_df")) next
-        m <- regmatches(n, regexec(paste0('^', base_name, '_(\\d+)_(.+)'), n))[[1]]
-        if (length(m) != 3) next
-        i <- m[[2]] ; key <- m[[3]]
+extractDataFrames <- function (input, spec = TRUE, data = FALSE) {
+    extractSingleDataFrame <- function (input, base_name) {
+        out <- list()
+        for (n in names(input)) {
+            if (endsWith(n, "_df")) next
+            m <- regmatches(n, regexec(paste0('^', base_name, '_(\\d+)_(.+)'), n))[[1]]
+            if (length(m) != 3) next
+            i <- as.integer(m[[2]]) ; key <- m[[3]]
 
-        # Place value in one of the list-of-lists tables
-        # NB: data.frames don't like gaps, otherwise would use one directly
-        if (!(key %in% names(out))) out[[key]] <- list()
-        out[[key]][[i]] <- input[[n]]
+            # Place value in one of the list-of-lists tables
+            # NB: data.frames don't like gaps, otherwise would use one directly
+            if (!(key %in% names(out))) out[[key]] <- list()
+            out[[key]][[i]] <- input[[n]]
+        }
+        if (length(out) == 0) return(data.frame(name = c()))
+        return(as.data.frame(lapply(out, unlist)))
     }
-    if (length(out) == 0) return(data.frame(name = c()))
-    return(as.data.frame(lapply(out, unlist)))
-}
 
-extractAllDataFrames <- function (input) {
-    out <- c('time', 'area', 'stock', 'fleet', 'abund')
-    names(out) <- out
-    lapply(out, function (n) extractDataFrame(input, n))
+    if (spec) {
+        out <- c('time', 'area', 'stock', 'fleet', 'abund')
+        names(out) <- out
+        out <- lapply(out, function (n) extractSingleDataFrame(input, n))
+    } else {
+        out <- list()
+    }
+
+    if (data) {
+        # Extract extra data
+        for (n in names(input)) {
+            m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
+            if (length(m) != 3) next
+            ws_name <- paste(
+                m[[3]],  # Table type
+                input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
+                sep = "_")
+            out[[ws_name]] <- input[[n]]
+        }
+    }
+    return(out)
 }
 
 server <- function(input, output, session) {
@@ -78,13 +95,12 @@ server <- function(input, output, session) {
 
     observeEvent(input$file_load, {
         updateTextInput(session, "file_name", value = gsub('.\\w+$', '', input$file_load$name))
-        wb <- openxlsx::loadWorkbook(input$file_load$datapath)
-        sheet_names <- openxlsx::getSheetNames(input$file_load$datapath)
+        sheet_names <- readxl::excel_sheets(input$file_load$datapath)
         name_mapping <- list()
 
         # Pass 1: Set counts for sects
         for (n in names(sect)) {
-            df <- openxlsx::read.xlsx(wb, n)
+            df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
             sect[[n]]$count(0)
             sect[[n]]$count(nrow(df))
         }
@@ -92,7 +108,7 @@ server <- function(input, output, session) {
         # Pass 2 (after UI recalculated): Set sect values
         executeAtNextInput(session, expr = {
             for (n in c('time', 'area', 'stock', 'fleet', 'abund')) {
-                df <- openxlsx::read.xlsx(wb, n)
+                df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
                 if ('name' %in% names(df) && length(df$name) > 0) {
                     # Add table's names to name mapping
                     name_mapping <- c(name_mapping, structure(
@@ -115,7 +131,7 @@ server <- function(input, output, session) {
                     m <- regmatches(n, regexec('^([a-z]+)_(.+)', n))[[1]]
                     if (length(m) != 3) next
 
-                    df <- openxlsx::read.xlsx(wb, n)
+                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
                     df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
                     hodfr::updateHodfrInput(session, df_name, value = df)
                 }
@@ -124,28 +140,9 @@ server <- function(input, output, session) {
     })
 
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
-        wb <- openxlsx::createWorkbook()
-
-        # Create initial sheets matching specification tables
-        for (base_name in c('time', 'area', 'stock', 'fleet', 'abund')) {
-            openxlsx::addWorksheet(wb, sheetName = base_name)
-            df <- extractDataFrame(input, base_name)
-            if (nrow(df) > 0) openxlsx::writeDataTable(wb, sheet = base_name, df)
-        }
-
-        # Extract extra data
-        for (n in names(input)) {
-            m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
-            if (length(m) != 3) next
-            ws_name <- paste(
-                m[[3]],  # Table type
-                input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
-                sep = "_")
-
-            openxlsx::addWorksheet(wb, sheetName = ws_name)
-            openxlsx::writeDataTable(wb, sheet = ws_name, input[[n]])
-        }
-        openxlsx::saveWorkbook(wb, file, overwrite = TRUE)
+        writexl::write_xlsx(extractDataFrames(input,
+            spec = TRUE,
+            data = TRUE), path = file)
     })
 
     # Stocks ##################################################################
@@ -285,7 +282,7 @@ server <- function(input, output, session) {
     # Gadget3 script tab ######################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
         output$script_g3_text <- renderText(mw_g3_script(
-            spec = extractAllDataFrames(input),
+            spec = extractDataFrames(input, data = FALSE),
             compile = FALSE,
             run = FALSE))
     })

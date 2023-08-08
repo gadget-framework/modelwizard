@@ -228,6 +228,9 @@ server <- function(input, output, session) {
             area = input$area_1_name)
 
         if (df_type == 'adist' || df_type == 'aldist') {
+            if (any(!is.finite(c(
+                input[[genStockId('age_min')]],
+                input[[genStockId('age_max')]])))) return(NULL)
             df_fields <- c(df_fields, list(
                 list(name = "age", title = T("Age"))))
             df_values <- c(df_values, list(
@@ -237,6 +240,10 @@ server <- function(input, output, session) {
         }
 
         if (df_type == 'ldist' || df_type == 'aldist') {
+            if (any(!is.finite(c(
+                input[[genStockId('lg_min')]],
+                input[[genStockId('lg_max')]],
+                input[[genStockId('lg_size')]])))) return(NULL)
             df_fields <- c(df_fields, list(
                 list(name = "length", title = T("Length"))))
             df_values <- c(df_values, list(

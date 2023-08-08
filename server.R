@@ -128,7 +128,7 @@ server <- function(input, output, session) {
                     m <- regmatches(n, regexec('^([a-z]+)_(.+)', n))[[1]]
                     if (length(m) != 3) next
 
-                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
+                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n), stringsAsFactors = TRUE)
                     df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
                     hodfr::updateHodfrInput(session, df_name, value = df)
                 }
@@ -286,6 +286,27 @@ server <- function(input, output, session) {
     })
     # Always render data, so if we hit save without visiting the tab it's been computed
     outputOptions(output, "fleets_data", suspendWhenHidden = FALSE)
+
+    # Model parameters ########################################################
+    observeEvent(input$nav_tabs, if (input$nav_tabs == 'parameters') {
+        tryCatch({
+            model_env <- list2env(extractDataFrames(input, data = TRUE), parent = asNamespace("gadget3"))
+            model_env$script <- mw_g3_script(
+                spec = model_env,
+                compile = TRUE,
+                run = FALSE)
+            saveRDS(model_env, file = '/tmp/model_env.rds')
+            eval(parse(text = model_env$script), envir = model_env)
+            df <- model_env$params.in[,c('switch', 'value', 'optimise', 'lower', 'upper')]
+            df$value <- unlist(df$value)  # NB: HODF won't display list columns, we shouldn't have any parameter vectors
+            rownames(df) <- NULL  # NB: Without, HODF gets confused as to why our rownames don't match
+            hodfr::updateHodfrInput(session, 'params', value = df)
+        }, error = function(e) {
+            str(e)
+            output$parameters_error <- renderText(paste(e$message, deparse1(e$call), sep = "\n"))
+            hodfr::updateHodfrInput(session, 'params', value = data.frame(switch = c(), value = c(),optimise = c(),lower = c(),upper = c()))
+        })
+    })
 
     # Gadget3 script tab ######################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {

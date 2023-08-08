@@ -68,7 +68,19 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       uiOutput("fleets_data"),
       ""),
 
-  tabPanel(T("Parameters"),
+  tabPanel(T("Parameters"), value = 'parameters',
+      h3(T("Model parameters")),
+      verbatimTextOutput('parameters_error'),
+      hodfr::hodfr(
+          'params',
+          fields = list(
+              list(name="switch", title=T("Parameter name")),
+              list(name="value", title=T("Initial value"), content="numeric"),
+              list(name="optimise", title=T("Optimise Parameter?"), content="checkbox"),
+              list(name="lower", title=T("Lower bound"), content="numeric"),
+              list(name="upper", title=T("Upper bound"), content="numeric")),
+          values = list(type = "bins"),
+          orientation = 'horizontal', js_debug = TRUE),
       ""),
 
   tabPanel(T("Gadget3 script"), value = 'script_g3',

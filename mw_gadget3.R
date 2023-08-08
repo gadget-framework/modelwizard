@@ -147,8 +147,8 @@ mw_g3_script <- function (
         spec,
         compile = FALSE,
         run = FALSE) {
-    stopifnot(is.list(spec))
-    stopifnot(identical(sort(names(spec)), c("abund", "area", "fleet", "stock", "time")))
+    stopifnot(is.list(spec) || is.environment(spec))
+    stopifnot(length(intersect(names(spec), c("abund", "area", "fleet", "stock", "time"))) == 5)
  
     # Run fn(row, ...) for each row in tbl
     row_apply <- function (tbl, fn, ...) vapply(

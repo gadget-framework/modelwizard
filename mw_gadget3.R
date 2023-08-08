@@ -148,7 +148,6 @@ mw_g3_script <- function (
         compile = FALSE,
         run = FALSE) {
     stopifnot(is.list(spec))
-    str(spec)
     stopifnot(identical(sort(names(spec)), c("abund", "area", "fleet", "stock", "time")))
  
     # Run fn(row, ...) for each row in tbl

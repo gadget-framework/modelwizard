@@ -49,7 +49,7 @@ ${stock_sym} <- g3_stock(${deparse1(r$name)}, seq(${deparse1(r$lg_min)}, ${depar
 actions_${stock_sym} <- list(
   g3a_growmature(${stock_sym}, g3a_grow_impl_bbinom(
     maxlengthgroupgrowth = 5L)),
-  g3a_naturalmortality(${stock_sym}, g3a_naturalmortality_exp()),
+  g3a_naturalmortality(${stock_sym}),
   g3a_initialconditions_normalparam(${stock_sym}),
   g3a_renewal_normalparam(${stock_sym},
     run_f = quote( ${if (r$renewal_step == 0) "" else paste0("cur_step == ", r$renewal_step, " && ")}age == stock__minage && !cur_year_projection )),

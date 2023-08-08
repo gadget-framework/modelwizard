@@ -26,7 +26,7 @@ ling <- g3_stock("ling", seq(30, 50, 10)) |>
 
 actions_ling <- list(
   g3a_growmature(ling, g3a_grow_impl_bbinom(
-    maxlengthgroupgrowth = 5L)),
+    maxlengthgroupgrowth = 2L)),
   g3a_naturalmortality(ling),
   g3a_initialconditions_normalparam(ling),
   g3a_renewal_normalparam(ling,

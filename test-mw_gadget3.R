@@ -25,7 +25,6 @@ code <- mw_g3_script(list(
         name = c("ling"),
         lg_min = 30, lg_max = 50, lg_size = 10,
         age_min = 3, age_max = 5,
-        max_lgg = 3,
         renewal_step = 0,
         stringsAsFactors = FALSE),
     fleet = data.frame(

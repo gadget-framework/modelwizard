@@ -155,7 +155,6 @@ server <- function(input, output, session) {
             div(class="col-md-3", numericInput(genId('age_min'), T("Minimum age"), isolate(input[[genId('age_min')]]))),
             div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), isolate(input[[genId('age_max')]]))),
             ""),
-        numericInput(genId('max_lgg'), isolate(input[[genId('max_lgg')]]), label=T("Maximum growth in a single step, in lengthgroups")),
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)

@@ -144,12 +144,20 @@ ${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldis
 actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
 )')}
 
-mw_g3_code_compile <- function (spec) {
+mw_g3_code_compile <- function (spec, xlsx) {
     template_str(r'(
 # Create model objective function ####################
 
 model_code <- g3_to_tmb(actions)
 params.in <- attr(model_code, "parameter_template")
+
+if (nzchar(data_path)) {
+  p <- readxl::read_excel(data_path, "params")
+  params.in[p$switch, "value"] <- p$value
+  params.in[p$switch, "optimise"] <- p$optimise != 0
+  params.in[p$switch, "lower"] <- p$lower
+  params.in[p$switch, "upper"] <- p$upper
+}
 )')}
 
 mw_g3_code_run <- function (spec) {
@@ -182,7 +190,7 @@ mw_g3_script <- function (
         row_apply(spec$stock, mw_g3_code_stock, spec, xlsx),
         row_apply(spec$fleet, mw_g3_code_fleet, spec, xlsx),
         row_apply(spec$abund, mw_g3_code_abund, spec, xlsx),
-        (if (compile) mw_g3_code_compile(spec) else ""),
+        (if (compile) mw_g3_code_compile(spec, xlsx) else ""),
         (if (run) mw_g3_code_run(spec) else ""),
         ""), collapse = "\n")
 }

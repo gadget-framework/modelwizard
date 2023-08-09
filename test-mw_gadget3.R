@@ -39,7 +39,7 @@ code <- mw_g3_script(list(
         name = c("acoustic"),
         step_active = 0,
         dist = c("weight"),
-        stringsAsFactors = FALSE)))
+        stringsAsFactors = FALSE)), compile = TRUE)
 #TODO: Need data to eval: eval(parse(text = code))
 ok_baseline('script1', code)
 
@@ -69,6 +69,6 @@ code <- mw_g3_script(list(
         name = c("acoustic"),
         step_active = 0,
         dist = c("weight"),
-        stringsAsFactors = FALSE)), xlsx = "moo.xlsx")
+        stringsAsFactors = FALSE)), xlsx = "moo.xlsx", compile = TRUE)
 #TODO: Need data to eval: eval(parse(text = code))
 ok_baseline('script1-withxlsx', code)

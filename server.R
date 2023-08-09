@@ -311,6 +311,7 @@ server <- function(input, output, session) {
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
         output$script_g3_text <- renderText(mw_g3_script(
             spec = extractDataFrames(input, data = FALSE),
+            xlsx = paste0(input$file_name, ".xlsx"),
             compile = TRUE,
             run = TRUE))
     })

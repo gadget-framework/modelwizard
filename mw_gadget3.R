@@ -3,12 +3,22 @@ template_str <- function (s) {
 }
 escape_sym <- Vectorize(function (s) deparse1(as.symbol(s), backtick = TRUE))
 
-mw_g3_code_header <- function (spec) {
+mw_g3_code_header <- function (spec, xlsx) {
+    libs <- c(
+        'gadget3',
+        (if (nzchar(xlsx)) 'readxl' else NULL),
+        NULL)
     template_str(r'(
-library(gadget3)
+${paste("library(", libs, ")", sep = "", collapse = "\n")}
 
 actions <- list()
+data_path <- ${deparse1(xlsx)}
 )')}
+
+mw_g3_code_readxl <- function (sheet_name, xlsx) {
+    if (!nzchar(xlsx)) return("")
+    template_str('${escape_sym(sheet_name)} <- read_excel(data_path, ${deparse1(sheet_name)})\n')
+}
 
 mw_g3_code_area <- function (spec) {
     area_names <- seq_along(spec$area$name)
@@ -37,7 +47,7 @@ actions_time <- list(
 actions <- c(actions, actions_time)
 )')}
 
-mw_g3_code_stock <- function (r, spec) {
+mw_g3_code_stock <- function (r, spec, xlsx) {
     stock_sym <- escape_sym(r$name)
     area_names <- spec$area$name
     template_str(r'(
@@ -63,6 +73,12 @@ actions_likelihood_${stock_sym} <- list(
 actions <- c(actions, actions_${stock_sym}, actions_likelihood_${stock_sym})
 )')}
 
+mw_g3_code_readxl_dist <- function (dist_type, r, xlsx) {
+    if (is.null(r[[dist_type]]) || r[[dist_type]] == "none") return("")
+    lc_name <- unname(paste(dist_type, r$name, sep = "_"))
+    mw_g3_code_readxl(lc_name, xlsx)
+}
+
 mw_g3_code_likelihood_dist <- function (dist_type, r, spec) {
     if (is.null(r[[dist_type]]) || r[[dist_type]] == "none") return("")
 
@@ -83,7 +99,7 @@ mw_g3_code_likelihood_dist <- function (dist_type, r, spec) {
     report = TRUE,
     nll_breakdown = TRUE),)')}
 
-mw_g3_code_fleet <- function (r, spec) {
+mw_g3_code_fleet <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
     area_names <- spec$area$name
     stock_list <- lapply(spec$stock$name, as.symbol)
@@ -93,6 +109,8 @@ mw_g3_code_fleet <- function (r, spec) {
     template_str(r'(
 # Create fleet definition for ${r$name} ####################
 ${fleet_sym} <- g3_fleet(${deparse1(r$name)}) |> g3s_livesonareas(area_names[${deparse1(area_names)}])
+
+${mw_g3_code_readxl(data_name, xlsx)}${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
 actions_${fleet_sym} <- list(
   g3a_predate_fleet(
     ${fleet_sym},
@@ -109,13 +127,14 @@ actions_likelihood_${fleet_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, 
 actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
 )')}
 
-mw_g3_code_abund <- function (r, spec) {
+mw_g3_code_abund <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
     stock_list <- lapply(spec$stock$name, as.symbol)
     # TODO: Step active
 
     template_str(r'(
 # Create abundance index for ${r$name} ####################
+${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
 actions_${fleet_sym} <- list(
   NULL)
 actions_likelihood_${fleet_sym} <- list(
@@ -145,6 +164,7 @@ fit <- gadgetutils::g3_fit(model_code, params.in)
 
 mw_g3_script <- function (
         spec,
+        xlsx = "",
         compile = FALSE,
         run = FALSE) {
     stopifnot(is.list(spec) || is.environment(spec))
@@ -157,12 +177,12 @@ mw_g3_script <- function (
         character(1))
 
     paste(c(
-        mw_g3_code_header(spec),
+        mw_g3_code_header(spec, xlsx),
         mw_g3_code_area(spec),
         row_apply(spec$time, mw_g3_code_time, spec),
-        row_apply(spec$stock, mw_g3_code_stock, spec),
-        row_apply(spec$fleet, mw_g3_code_fleet, spec),
-        row_apply(spec$abund, mw_g3_code_abund, spec),
+        row_apply(spec$stock, mw_g3_code_stock, spec, xlsx),
+        row_apply(spec$fleet, mw_g3_code_fleet, spec, xlsx),
+        row_apply(spec$abund, mw_g3_code_abund, spec, xlsx),
         (if (compile) mw_g3_code_compile(spec) else ""),
         (if (run) mw_g3_code_run(spec) else ""),
         ""), collapse = "\n")

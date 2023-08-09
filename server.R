@@ -38,7 +38,7 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
             ""))))))
 }
 
-extractDataFrames <- function (input, spec = TRUE, data = FALSE) {
+extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE) {
     extractSingleDataFrame <- function (input, base_name) {
         out <- list()
         for (n in names(input)) {
@@ -76,6 +76,11 @@ extractDataFrames <- function (input, spec = TRUE, data = FALSE) {
             out[[ws_name]] <- input[[n]]
         }
     }
+
+    if (params) {
+        out[['params']] <- input[['params']]
+    }
+
     return(out)
 }
 
@@ -132,6 +137,11 @@ server <- function(input, output, session) {
                     df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
                     hodfr::updateHodfrInput(session, df_name, value = df)
                 }
+                if ('params' %in% sheet_names) {
+                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, 'params'), stringsAsFactors = FALSE)
+                    df$optimise <- df$optimise != 0
+                    hodfr::updateHodfrInput(session, 'params', value = df)
+                }
             })
         })
     })
@@ -139,6 +149,7 @@ server <- function(input, output, session) {
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         writexl::write_xlsx(extractDataFrames(input,
             spec = TRUE,
+            params = TRUE,
             data = TRUE), path = file)
     })
 
@@ -289,7 +300,7 @@ server <- function(input, output, session) {
     # Model parameters ########################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'parameters') {
         tryCatch({
-            model_env <- list2env(extractDataFrames(input, data = TRUE), parent = asNamespace("gadget3"))
+            model_env <- list2env(extractDataFrames(input, params = TRUE, data = TRUE), parent = asNamespace("gadget3"))
             model_env$script <- mw_g3_script(
                 spec = model_env,
                 compile = TRUE,
@@ -299,6 +310,18 @@ server <- function(input, output, session) {
             df <- model_env$params.in[,c('switch', 'value', 'optimise', 'lower', 'upper')]
             df$value <- unlist(df$value)  # NB: HODF won't display list columns, we shouldn't have any parameter vectors
             rownames(df) <- NULL  # NB: Without, HODF gets confused as to why our rownames don't match
+
+            if (!is.null(input$params)) {
+                existing_df <- input$params
+                df <- rbind(
+                    # Filter out old parameters from existing table
+                    existing_df[existing_df$switch %in% df$switch,],
+                    # Concatenate any new parameters
+                    df[!(df$switch %in% existing_df$switch),],
+                    make.row.names = FALSE)
+                df$optimise <- df$optimise != 0
+            }
+
             hodfr::updateHodfrInput(session, 'params', value = df)
         }, error = function(e) {
             str(e)

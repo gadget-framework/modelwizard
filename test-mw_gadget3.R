@@ -1,3 +1,4 @@
+if (!interactive()) options(warn=2, error = function() { sink(stderr()) ; traceback(3) ; q(status = 1) })
 library(unittest)
 
 source('mw_gadget3.R')

@@ -156,7 +156,6 @@ mw_g3_code_run <- function (spec) {
     template_str(r'(
 # Examples for running model ####################
 obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
-obj.fn$report()$anch__num
 
 fit <- gadgetutils::g3_fit(model_code, params.in)
 # gadgetplots::plot_ldist(fit)

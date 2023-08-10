@@ -18,6 +18,14 @@ Rscript install-deps.R
 
 To run the app, 
 
+## Branding
+
+Symlink (or create a new) ``branding.R``, e.g:
+
+```
+ln -rs branding.IEOinputSA.R branding.R
+```
+
 ## Shinyapps.io deployment
 
 Once installed locally, you can deploy to your shinyapps account with:

@@ -6,7 +6,7 @@ library(hodfr)
 T <- function (s) s
 
 branding_name <- 'ModelWizard'
-if (file.exists('branding.R')) source('branding.R')
+if (file.exists('branding.R')) source('branding.R', local = TRUE)
 
 label <- function (...) htmltools::tag('label', ...)
 

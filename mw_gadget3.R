@@ -130,7 +130,6 @@ actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
 mw_g3_code_abund <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
     stock_list <- lapply(spec$stock$name, as.symbol)
-    # TODO: Step active
 
     template_str(r'(
 # Create abundance index for ${r$name} ####################

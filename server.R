@@ -231,7 +231,7 @@ server <- function(input, output, session) {
             list(name = "area", title = T("Area")))
         df_values <- list(
             year = seq(input$time_1_year_min, input$time_1_year_max),
-            step = if (isTRUE(input[[genId('step')]] > 0)) input[[genId('step')]] else seq_len(input$time_1_steps),
+            step = if (isTRUE(input[[genId('step_active')]] > 0)) input[[genId('step_active')]] else seq_len(input$time_1_steps),
             area = input$area_1_name)
 
         if (df_type == 'adist' || df_type == 'aldist') {

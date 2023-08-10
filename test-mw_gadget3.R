@@ -56,7 +56,7 @@ code <- mw_g3_script(list(
         name = c("ling"),
         lg_min = 30, lg_max = 50, lg_size = 10,
         age_min = 3, age_max = 5,
-        renewal_step = 0,
+        renewal_step = 1,
         stringsAsFactors = FALSE),
     fleet = data.frame(
         name = c("comm", "surv"),

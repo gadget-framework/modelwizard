@@ -31,7 +31,7 @@ actions_ling <- list(
   g3a_naturalmortality(ling),
   g3a_initialconditions_normalparam(ling),
   g3a_renewal_normalparam(ling,
-    run_f = quote( age == stock__minage && !cur_year_projection )),
+    run_step = NULL),
   g3a_age(ling),
   NULL)
 

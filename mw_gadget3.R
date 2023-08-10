@@ -62,7 +62,7 @@ actions_${stock_sym} <- list(
   g3a_naturalmortality(${stock_sym}),
   g3a_initialconditions_normalparam(${stock_sym}),
   g3a_renewal_normalparam(${stock_sym},
-    run_f = quote( ${if (r$renewal_step == 0) "" else paste0("cur_step == ", r$renewal_step, " && ")}age == stock__minage && !cur_year_projection )),
+    run_step = ${deparse1(if (r$renewal_step == 0) NULL else r$renewal_step)}),
   g3a_age(${stock_sym}),
   NULL)
 

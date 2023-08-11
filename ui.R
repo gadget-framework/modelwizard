@@ -80,7 +80,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
               list(name="lower", title=T("Lower bound"), content="numeric"),
               list(name="upper", title=T("Upper bound"), content="numeric")),
           values = list(type = "bins"),
-          orientation = 'horizontal', js_debug = TRUE),
+          orientation = 'horizontal', js_debug = FALSE),
       ""),
 
   tabPanel(T("Gadget3 script"), value = 'script_g3',

@@ -10,7 +10,7 @@ withCallingHandlers({
     install.packages("writexl")
     install.packages("stringr")
 
-    remotes::install_github("gadget-framework/gadget3", "issue-118-parameterised-defaults")  # TODO: New release
+    remotes::install_github("gadget-framework/gadget3", "master")  # TODO: New release
 }, warning = stop)
 
 # Develpoment dependencies

@@ -46,6 +46,7 @@ extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE)
             m <- regmatches(n, regexec(paste0('^', base_name, '_(\\d+)_(.+)'), n))[[1]]
             if (length(m) != 3) next
             i <- as.integer(m[[2]]) ; key <- m[[3]]
+            if (endsWith(key, '_prepopulate')) next
 
             # Place value in one of the list-of-lists tables
             # NB: data.frames don't like gaps, otherwise would use one directly

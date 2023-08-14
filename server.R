@@ -96,14 +96,14 @@ server <- function(input, output, session) {
 
     # File I/O ################################################################
 
-    observeEvent(input$file_load, {
-        updateTextInput(session, "file_name", value = gsub('.\\w+$', '', input$file_load$name))
-        sheet_names <- readxl::excel_sheets(input$file_load$datapath)
+    do_file_load <- function (file_path, file_name = basename(file_path)) {
+        updateTextInput(session, "file_name", value = gsub('.\\w+$', '', file_name))
+        sheet_names <- readxl::excel_sheets(file_path)
         name_mapping <- list()
 
         # Pass 1: Set counts for sects
         for (n in names(sect)) {
-            df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
+            df <- as.data.frame(readxl::read_excel(file_path, n))
             sect[[n]]$count(0)
             sect[[n]]$count(nrow(df))
         }
@@ -111,7 +111,7 @@ server <- function(input, output, session) {
         # Pass 2 (after UI recalculated): Set sect values
         executeAtNextInput(session, expr = {
             for (n in c('time', 'area', 'stock', 'fleet', 'abund')) {
-                df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n))
+                df <- as.data.frame(readxl::read_excel(file_path, n))
                 if ('name' %in% names(df) && length(df$name) > 0) {
                     # Add table's names to name mapping
                     name_mapping <- c(name_mapping, structure(
@@ -134,23 +134,30 @@ server <- function(input, output, session) {
                     m <- regmatches(n, regexec('^([a-z]+)_(.+)', n))[[1]]
                     if (length(m) != 3) next
 
-                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, n), stringsAsFactors = TRUE)
+                    df <- as.data.frame(readxl::read_excel(file_path, n), stringsAsFactors = TRUE)
                     df_fields <- data_cols_to_fields(names(df))
                     unknown_fields <- Filter(is.null, df_fields)
                     if (length(unknown_fields) > 0) {
                         stop("Unknown fields in data ", n, ": ", paste(names(unknown_fields), collapse = ", "))
                     }
+                    # TODO: pass in fields?
 
                     df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
                     hodfr::updateHodfrInput(session, df_name, value = df)
                 }
                 if ('params' %in% sheet_names) {
-                    df <- as.data.frame(readxl::read_excel(input$file_load$datapath, 'params'), stringsAsFactors = FALSE)
+                    df <- as.data.frame(readxl::read_excel(file_path, 'params'), stringsAsFactors = FALSE)
                     df$optimise <- df$optimise != 0
                     hodfr::updateHodfrInput(session, 'params', value = df)
                 }
             })
         })
+    }
+    observeEvent(input$file_load_demo_act, {
+         do_file_load('./anch.xlsx')
+    })
+    observeEvent(input$file_load, {
+        do_file_load(input$file_load$datapath, input$file_load$name)
     })
 
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {

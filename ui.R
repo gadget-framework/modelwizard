@@ -6,6 +6,7 @@ library(hodfr)
 T <- function (s) s
 
 branding_name <- 'ModelWizard'
+branding_footer <- 'footer.html'
 if (file.exists('branding.R')) source('branding.R', local = TRUE)
 
 label <- function (...) htmltools::tag('label', ...)
@@ -87,4 +88,4 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       verbatimTextOutput('script_g3_text'),
       ""),
 
-  footer = includeHTML("footer.html"))
+  footer = includeHTML(branding_footer))

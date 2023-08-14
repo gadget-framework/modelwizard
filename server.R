@@ -297,11 +297,18 @@ server <- function(input, output, session) {
         # NB: Assume there's only one stock for now
         genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
 
+        init_cols <- data_init_cols(df_type, df_unit, genId, genStockId)
+        if (is.null(init_cols)) return(NULL)
+
         df <- isolate(input[[genId(df_type, 'df')]])
-        if (is.null(df)) {
-            f <- data_init_cols(df_type, df_unit, genId, genStockId)
-            if (is.null(f)) return(NULL)
-            df <- do.call(data.frame, structure(as.list(rep(NA, length(f))), names = f))
+        if (is.null(df)) df <- data.frame(x = NA)
+        if (!identical(init_cols, names(df))) {
+            for (extra in setdiff(init_cols, names(df))) {
+                # Fill in missing columns with NA
+                df[[extra]] <- NA
+            }
+            # Select only the columns we're now interested in
+            df <- df[, init_cols, drop = FALSE]
         }
         observeEvent(input[[genId(df_type, 'prepopulate')]], {
             df <- data_init_value(df_type, df_unit, genId, genStockId)

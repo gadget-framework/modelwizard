@@ -24,7 +24,7 @@ actions <- c(actions, actions_time)
 # Create stock definition for ling ####################
 ling <- g3_stock("ling", seq(30, 50, 10)) |>
   g3s_livesonareas(area_names[c("IV4", "IV5")]) |>
-  g3s_age(30L, 50L)
+  g3s_age(3L, 5L)
 
 actions_ling <- list(
   g3a_growmature(ling, g3a_grow_impl_bbinom(

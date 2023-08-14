@@ -54,7 +54,7 @@ mw_g3_code_stock <- function (r, spec, xlsx) {
 # Create stock definition for ${r$name} ####################
 ${stock_sym} <- g3_stock(${deparse1(r$name)}, seq(${deparse1(r$lg_min)}, ${deparse1(r$lg_max)}, ${deparse(r$lg_size)})) |>
   g3s_livesonareas(area_names[${deparse1(area_names)}]) |>
-  g3s_age(${deparse1(as.integer(r$lg_min))}, ${deparse1(as.integer(r$lg_max))})
+  g3s_age(${deparse1(as.integer(r$age_min))}, ${deparse1(as.integer(r$age_max))})
 
 actions_${stock_sym} <- list(
   g3a_growmature(${stock_sym}, g3a_grow_impl_bbinom(

@@ -11,6 +11,9 @@ withCallingHandlers({
     install.packages("stringr")
 
     remotes::install_github("gadget-framework/gadget3", "master")  # TODO: New release
+
+    install.packages("r4ss")
+    install.packages("reshape2")
 }, warning = stop)
 
 # Develpoment dependencies

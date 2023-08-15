@@ -6,6 +6,8 @@ The following system dependencies need to be installed:
 
 ```
 apt install r-recommended liblapack-dev libblas-dev gfortran
+# For r4ss
+apt install libfontconfig1-dev
 # For rsconnect / shinyapps.io
 apt install libcurl4-openssl-dev libssl-dev
 ```

@@ -1,3 +1,5 @@
+library(gadget3)  # NB: This is to force shinyapps to register the dependency
+
 template_str <- function (s) {
     stringr::str_interp(s, parent.frame(1))
 }

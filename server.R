@@ -1,4 +1,5 @@
 source('./mw_gadget3.R')
+source('./mw_ss.R')
 
 # expand.grid but with groupings right-to-left
 rev.expand.grid <- function (...) {
@@ -386,5 +387,12 @@ server <- function(input, output, session) {
             xlsx = paste0(input$file_name, ".xlsx"),
             compile = TRUE,
             run = TRUE))
+    })
+
+    # SS3 script tab ######################################################
+    observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_ss') {
+        output$script_ss_text <- renderText(mw_ss_script(
+            spec = extractDataFrames(input, data = FALSE),
+            xlsx = paste0(input$file_name, ".xlsx")))
     })
 }

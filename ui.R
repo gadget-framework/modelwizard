@@ -88,4 +88,8 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       verbatimTextOutput('script_g3_text'),
       ""),
 
+  tabPanel(T("SS3/r4ss script"), value = 'script_ss',
+      verbatimTextOutput('script_ss_text'),
+      ""),
+
   footer = includeHTML(branding_footer))

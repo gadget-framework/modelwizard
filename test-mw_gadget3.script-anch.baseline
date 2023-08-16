@@ -1,0 +1,212 @@
+
+library(gadget3)
+library(readxl)
+
+actions <- list()
+data_path <- "anch.xlsx"
+
+
+# Create area definitions ####################
+area_names <- c(IXa = 1L)
+
+
+# Create time definitions ####################
+
+actions_time <- list(
+  g3a_time(
+    1979L, 2023L,
+    step_lengths = c(3L, 3L, 3L, 3L)),
+  NULL)
+
+actions <- c(actions, actions_time)
+
+
+# Create stock definition for anch ####################
+anch <- g3_stock("anch", seq(3, 22, 0.5)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(0L, 3L)
+
+actions_anch <- list(
+  g3a_growmature(anch, g3a_grow_impl_bbinom(
+    maxlengthgroupgrowth = 38L)),
+  g3a_naturalmortality(anch),
+  g3a_initialconditions_normalparam(anch),
+  g3a_renewal_normalparam(anch,
+    run_step = NULL),
+  g3a_age(anch),
+  NULL)
+
+actions_likelihood_anch <- list(
+  g3l_understocking(list(anch), weight = 1e+08, nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_anch, actions_likelihood_anch)
+
+
+# Create fleet definition for seine ####################
+seine <- g3_fleet("seine") |> g3s_livesonareas(area_names["IXa"])
+
+landings_seine <- read_excel(data_path, "landings_seine")
+ldist_seine <- read_excel(data_path, "ldist_seine")
+aldist_seine <- read_excel(data_path, "aldist_seine")
+
+actions_seine <- list(
+  g3a_predate_fleet(
+    seine,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(
+        g3_parameterized("seine.alpha", by_stock = TRUE),
+        g3_parameterized("seine.l50", by_stock = TRUE)),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_seine", landings_seine, "number", areas = area_names))),
+  NULL)
+actions_likelihood_seine <- list(
+  g3l_catchdistribution(
+    "ldist_seine",
+    ldist_seine,
+    fleets = list(seine),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_seine",
+    aldist_seine,
+    fleets = list(seine),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_seine, actions_likelihood_seine)
+
+
+# Create fleet definition for ecocadiz ####################
+ecocadiz <- g3_fleet("ecocadiz") |> g3s_livesonareas(area_names["IXa"])
+
+landings_ecocadiz <- read_excel(data_path, "landings_ecocadiz")
+ldist_ecocadiz <- read_excel(data_path, "ldist_ecocadiz")
+aldist_ecocadiz <- read_excel(data_path, "aldist_ecocadiz")
+
+actions_ecocadiz <- list(
+  g3a_predate_fleet(
+    ecocadiz,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(
+        g3_parameterized("ecocadiz.alpha", by_stock = TRUE),
+        g3_parameterized("ecocadiz.l50", by_stock = TRUE)),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_ecocadiz", landings_ecocadiz, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_ecocadiz <- list(
+  g3l_catchdistribution(
+    "ldist_ecocadiz",
+    ldist_ecocadiz,
+    fleets = list(ecocadiz),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_ecocadiz",
+    aldist_ecocadiz,
+    fleets = list(ecocadiz),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_ecocadiz, actions_likelihood_ecocadiz)
+
+
+# Create fleet definition for pelago ####################
+pelago <- g3_fleet("pelago") |> g3s_livesonareas(area_names["IXa"])
+
+landings_pelago <- read_excel(data_path, "landings_pelago")
+ldist_pelago <- read_excel(data_path, "ldist_pelago")
+aldist_pelago <- read_excel(data_path, "aldist_pelago")
+
+actions_pelago <- list(
+  g3a_predate_fleet(
+    pelago,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(
+        g3_parameterized("pelago.alpha", by_stock = TRUE),
+        g3_parameterized("pelago.l50", by_stock = TRUE)),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_pelago", landings_pelago, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_pelago <- list(
+  g3l_catchdistribution(
+    "ldist_pelago",
+    ldist_pelago,
+    fleets = list(pelago),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_pelago",
+    aldist_pelago,
+    fleets = list(pelago),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_pelago, actions_likelihood_pelago)
+
+
+# Create abundance index for si_ecocadiz ####################
+dist_si_ecocadiz <- read_excel(data_path, "dist_si_ecocadiz")
+
+actions_si_ecocadiz <- list(
+  NULL)
+actions_likelihood_si_ecocadiz <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_ecocadiz",
+    dist_si_ecocadiz,
+    fleets = list(si_ecocadiz),
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_ecocadiz, actions_likelihood_si_ecocadiz)
+
+
+# Create abundance index for si_pelago ####################
+dist_si_pelago <- read_excel(data_path, "dist_si_pelago")
+
+actions_si_pelago <- list(
+  NULL)
+actions_likelihood_si_pelago <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_pelago",
+    dist_si_pelago,
+    fleets = list(si_pelago),
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_pelago, actions_likelihood_si_pelago)
+
+
+
+

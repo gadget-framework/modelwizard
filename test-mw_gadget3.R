@@ -11,6 +11,12 @@ ok_baseline <- function (test_name, output) {
     base_output <- paste(readLines(file_path), collapse = "\n")
     ok(ut_cmp_identical(output, base_output), sprintf("%s: Matches baseline", test_name))
 }
+xlsx_to_spec <- function (xlsx_path = 'anch.xlsx') {
+    spec_tbls <- c('time', 'area', 'stock', 'fleet', 'abund')
+    structure(
+        lapply(spec_tbls, function(n) readxl::read_xlsx(xlsx_path, n)),
+        names = spec_tbls)
+}
 
 code <- mw_g3_script(list(
     time = data.frame(
@@ -71,3 +77,7 @@ code <- mw_g3_script(list(
         stringsAsFactors = FALSE)), xlsx = "moo.xlsx", compile = TRUE)
 #TODO: Need data to eval: eval(parse(text = code))
 ok_baseline('script1-withxlsx', code)
+
+code <- mw_g3_script(xlsx_to_spec("anch.xlsx"), xlsx = "anch.xlsx")
+ok_baseline('script-anch', code)
+eval(parse(text = code))

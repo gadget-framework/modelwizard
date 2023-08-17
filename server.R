@@ -181,7 +181,7 @@ server <- function(input, output, session) {
             div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), isolate(input[[genId('age_max')]]))),
             ""),
         hideIfOneTimestep(
-            selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('step')]]))),
+            selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('renewal_step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
     output$stocks <- sect$stock$ui
 
@@ -215,7 +215,7 @@ server <- function(input, output, session) {
             div(class="col-md-3", selectInput(genId('dist'), T("Aggregated observations"), list.swapnames(
                 none = T('No data'),
                 weight = T('Tonnes'),
-                number =  T('Number of individuals')), selected = isolate(input[[genId('landings')]]))),
+                number =  T('Number of individuals')), selected = isolate(input[[genId('dist')]]))),
             div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
                 none = T('No data'),
                 weight = T('Tonnes'),

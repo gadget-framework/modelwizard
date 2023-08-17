@@ -3,10 +3,9 @@ library(unittest)
 
 source('mw_gadget3.R')
 
-reset_baseline <- FALSE
 ok_baseline <- function (test_name, output) {
     file_path <- here::here(paste('test-mw_gadget3', test_name, 'baseline', sep = "."))
-    if (!file.exists(file_path) || reset_baseline) {
+    if (!file.exists(file_path) || nzchar(Sys.getenv("RESET_BASELINE"))) {
       writeLines(output, con = file_path)
     }
     base_output <- paste(readLines(file_path), collapse = "\n")

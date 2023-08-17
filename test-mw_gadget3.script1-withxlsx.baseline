@@ -115,7 +115,7 @@ actions_likelihood_acoustic <- list(
   g3l_abundancedistribution(
     "dist_acoustic",
     dist_acoustic,
-    fleets = list(acoustic),
+    
     stocks = list(ling),
     function_f = g3l_distribution_surveyindices_log(),
     area_group = area_names,

@@ -176,7 +176,7 @@ actions_likelihood_si_ecocadiz <- list(
   g3l_abundancedistribution(
     "dist_si_ecocadiz",
     dist_si_ecocadiz,
-    fleets = list(si_ecocadiz),
+    
     stocks = list(anch),
     function_f = g3l_distribution_surveyindices_log(),
     area_group = area_names,
@@ -197,7 +197,7 @@ actions_likelihood_si_pelago <- list(
   g3l_abundancedistribution(
     "dist_si_pelago",
     dist_si_pelago,
-    fleets = list(si_pelago),
+    
     stocks = list(anch),
     function_f = g3l_distribution_surveyindices_log(),
     area_group = area_names,

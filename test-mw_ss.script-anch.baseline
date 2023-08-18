@@ -46,6 +46,7 @@ inputs$dat$catch <- inputs$dat$catch[c(),,drop = FALSE]
 inputs$dat$CPUEinfo <- inputs$dat$CPUEinfo[c(),,drop = FALSE]
 inputs$dat$CPUE <- inputs$dat$CPUE[c(),,drop = FALSE]
 inputs$dat$len_info <- inputs$dat$len_info[c(),,drop = FALSE]
+inputs$dat$lencomp <- inputs$dat$lencomp[c(),,drop = FALSE]
 inputs$dat$age_info <- inputs$dat$age_info[c(),,drop = FALSE]
 inputs$dat$agecomp <- inputs$dat$agecomp[c(),,drop = FALSE]
 inputs$dat$MeanSize_at_Age_obs <- inputs$dat$MeanSize_at_Age_obs[c(),,drop = FALSE]
@@ -311,6 +312,19 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
 ldist_seine <- readxl::read_excel(data_path, "ldist_seine")
 
 
+if (nrow(inputs$dat$lencomp) == 0) {
+    # Seed lencomp with columns based on lbin_vector
+    cols <- paste0("L", inputs$dat$lbin_vector)
+    cols <- structure(as.list(rep(0, length(cols))), names = cols)
+    inputs$dat$lencomp <- as.data.frame(c(list(
+        Yr = 1999,
+        Seas = 1,
+        FltSvy = "",
+        Gender = 0,
+        Part = 0,
+        NSamp = 100), cols))[c(),]
+}
+
 # Convert lengths into SS-compatible names
 ldist_seine$length <- as.factor(ldist_seine$length)
 lvls <- parse_levels(levels(ldist_seine$length))
@@ -323,7 +337,7 @@ ldist_seine <- reshape2::dcast(
     year + step + area ~ length,
     value.var = "number")
 
-inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
+inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_seine$year,
     Seas = ldist_seine$step,
     FltSvy = "seine",  # NB: Use fleetnames for now, will renumber later
@@ -331,14 +345,25 @@ inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
     Part = 0,
     NSamp = 100,
     stringsAsFactors = TRUE), ldist_seine[,lvls_map]))
-inputs$dat$lencomp[,lvls_map]
-
 
 
 # Create length distribution for ecocadiz ####################
 
 ldist_ecocadiz <- readxl::read_excel(data_path, "ldist_ecocadiz")
 
+
+if (nrow(inputs$dat$lencomp) == 0) {
+    # Seed lencomp with columns based on lbin_vector
+    cols <- paste0("L", inputs$dat$lbin_vector)
+    cols <- structure(as.list(rep(0, length(cols))), names = cols)
+    inputs$dat$lencomp <- as.data.frame(c(list(
+        Yr = 1999,
+        Seas = 1,
+        FltSvy = "",
+        Gender = 0,
+        Part = 0,
+        NSamp = 100), cols))[c(),]
+}
 
 # Convert lengths into SS-compatible names
 ldist_ecocadiz$length <- as.factor(ldist_ecocadiz$length)
@@ -352,7 +377,7 @@ ldist_ecocadiz <- reshape2::dcast(
     year + step + area ~ length,
     value.var = "number")
 
-inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
+inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_ecocadiz$year,
     Seas = ldist_ecocadiz$step,
     FltSvy = "ecocadiz",  # NB: Use fleetnames for now, will renumber later
@@ -360,14 +385,25 @@ inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
     Part = 0,
     NSamp = 100,
     stringsAsFactors = TRUE), ldist_ecocadiz[,lvls_map]))
-inputs$dat$lencomp[,lvls_map]
-
 
 
 # Create length distribution for pelago ####################
 
 ldist_pelago <- readxl::read_excel(data_path, "ldist_pelago")
 
+
+if (nrow(inputs$dat$lencomp) == 0) {
+    # Seed lencomp with columns based on lbin_vector
+    cols <- paste0("L", inputs$dat$lbin_vector)
+    cols <- structure(as.list(rep(0, length(cols))), names = cols)
+    inputs$dat$lencomp <- as.data.frame(c(list(
+        Yr = 1999,
+        Seas = 1,
+        FltSvy = "",
+        Gender = 0,
+        Part = 0,
+        NSamp = 100), cols))[c(),]
+}
 
 # Convert lengths into SS-compatible names
 ldist_pelago$length <- as.factor(ldist_pelago$length)
@@ -381,7 +417,7 @@ ldist_pelago <- reshape2::dcast(
     year + step + area ~ length,
     value.var = "number")
 
-inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
+inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_pelago$year,
     Seas = ldist_pelago$step,
     FltSvy = "pelago",  # NB: Use fleetnames for now, will renumber later
@@ -389,8 +425,6 @@ inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
     Part = 0,
     NSamp = 100,
     stringsAsFactors = TRUE), ldist_pelago[,lvls_map]))
-inputs$dat$lencomp[,lvls_map]
-
 
 
 

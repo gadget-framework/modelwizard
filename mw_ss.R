@@ -63,6 +63,7 @@ inputs$dat$catch <- inputs$dat$catch[c(),,drop = FALSE]
 inputs$dat$CPUEinfo <- inputs$dat$CPUEinfo[c(),,drop = FALSE]
 inputs$dat$CPUE <- inputs$dat$CPUE[c(),,drop = FALSE]
 inputs$dat$len_info <- inputs$dat$len_info[c(),,drop = FALSE]
+inputs$dat$lencomp <- inputs$dat$lencomp[c(),,drop = FALSE]
 inputs$dat$age_info <- inputs$dat$age_info[c(),,drop = FALSE]
 inputs$dat$agecomp <- inputs$dat$agecomp[c(),,drop = FALSE]
 inputs$dat$MeanSize_at_Age_obs <- inputs$dat$MeanSize_at_Age_obs[c(),,drop = FALSE]
@@ -229,6 +230,19 @@ mw_ss_code_ldist <- function (r, spec, xlsx) {
 
 ${mw_ss_code_readxl(ldist_name, xlsx)}
 
+if (nrow(inputs$dat$lencomp) == 0) {
+    # Seed lencomp with columns based on lbin_vector
+    cols <- paste0("L", inputs$dat$lbin_vector)
+    cols <- structure(as.list(rep(0, length(cols))), names = cols)
+    inputs$dat$lencomp <- as.data.frame(c(list(
+        Yr = 1999,
+        Seas = 1,
+        FltSvy = "",
+        Gender = 0,
+        Part = 0,
+        NSamp = 100), cols))[c(),]
+}
+
 # Convert lengths into SS-compatible names
 ${ldist_sym}$length <- as.factor(${ldist_sym}$length)
 lvls <- parse_levels(levels(${ldist_sym}$length))
@@ -241,7 +255,7 @@ ${ldist_sym} <- reshape2::dcast(
     year + step + area ~ length,
     value.var = ${deparse1(r$ldist)})
 
-inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
+inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ${ldist_sym}$year,
     Seas = ${ldist_sym}$step,
     FltSvy = ${deparse1(r$name)},  # NB: Use fleetnames for now, will renumber later
@@ -249,8 +263,6 @@ inputs$dat$lencomp <- rbind(inputs$dat$lcomp, cbind(data.frame(
     Part = 0,
     NSamp = 100,
     stringsAsFactors = TRUE), ${ldist_sym}[,lvls_map]))
-inputs$dat$lencomp[,lvls_map]
-
 )')}
 
 mw_ss_code_aldist <- function (r, spec, xlsx) {

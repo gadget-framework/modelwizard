@@ -67,6 +67,13 @@ inputs$dat$lencomp <- inputs$dat$lencomp[c(),,drop = FALSE]
 inputs$dat$age_info <- inputs$dat$age_info[c(),,drop = FALSE]
 inputs$dat$agecomp <- inputs$dat$agecomp[c(),,drop = FALSE]
 inputs$dat$MeanSize_at_Age_obs <- inputs$dat$MeanSize_at_Age_obs[c(),,drop = FALSE]
+inputs$ctl$Q_options <- inputs$ctl$Q_options[c(),,drop = FALSE]
+inputs$ctl$Q_parms <- inputs$ctl$Q_parms[c(),,drop = FALSE]
+inputs$ctl$size_selex_types <- inputs$ctl$size_selex_types[c(),,drop = FALSE]
+inputs$ctl$size_selex_parms <- inputs$ctl$size_selex_parms[c(),,drop = FALSE]
+inputs$ctl$age_selex_types <- inputs$ctl$age_selex_types[c(),,drop = FALSE]
+inputs$ctl$age_selex_parms <- inputs$ctl$age_selex_parms[c(),,drop = FALSE]
+inputs$ctl$lambdas <- inputs$ctl$lambdas[c(),,drop = FALSE]
 )')}
 
 mw_ss_code_area <- function (spec) {
@@ -165,6 +172,58 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch = ${data_sym}[[${deparse1(r$landings)}]],
     catch_se = 0.01,
     stringsAsFactors = TRUE))
+
+inputs$ctl$size_selex_types[${deparse1(r$name)},] <- list(
+    Pattern = 1,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+inputs$ctl$age_selex_types[${deparse1(r$name)},] <- list(
+    Pattern = 11,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", ${deparse1(r$name)}),] <- list(
+    LO = -2,
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", ${deparse1(r$name)}),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
 )')}
 
 mw_ss_code_abund <- function (r, spec, xlsx) {
@@ -219,6 +278,34 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     obs = ${cpue_sym}[[${deparse1(r$dist)}]],  # TODO: Do we need to scale if numbers?
     se_log = 0.3,
     stringsAsFactors = TRUE))
+
+inputs$ctl$Q_options <- rbind(inputs$ctl$Q_options, data.frame(
+    fleet = ${deparse1(r$name)},  # NB: Use fleetnames for now, will renumber later
+    link = 1,
+    link_info = 0,
+    extra_se = 0,
+    biasadj = 0,
+    float = 0))
+inputs$ctl$Q_parms[paste0("LnQ_base_", ${deparse1(r$name)}),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$Q_parms[paste0("Q_extraSD_", ${deparse1(r$name)}),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
 )')}
 
 mw_ss_code_ldist <- function (r, spec, xlsx) {
@@ -293,6 +380,7 @@ inputs$dat$catch$fleet <- as.numeric(factor(inputs$dat$catch$fleet, levels = inp
 inputs$dat$CPUEinfo$Fleet <- as.numeric(factor(inputs$dat$CPUEinfo$Fleet, levels = inputs$dat$fleetinfo$fleetname))
 inputs$dat$CPUE$index <- as.numeric(factor(inputs$dat$CPUE$index, levels = inputs$dat$fleetinfo$fleetname))
 inputs$dat$lencomp$FltSvy <- as.numeric(factor(inputs$dat$lencomp$FltSvy, levels = inputs$dat$fleetinfo$fleetname))
+inputs$ctl$Q_options$fleet <- as.numeric(factor(inputs$ctl$Q_options$fleet, levels = inputs$dat$fleetinfo$fleetname))
 
 # Set rownames (so they can be added as comments into data.ss)
 rownames(inputs$dat$fleetinfo) <- inputs$dat$fleetinfo$fleetname
@@ -319,6 +407,11 @@ if (nrow(inputs$dat$MeanSize_at_Age_obs) > 0) {
     inputs$dat$MeanSize_at_Age_obs <- NULL  # r4ss wont write 0-row data.frames
 }
 inputs$dat$Ngenders <- inputs$dat$Nsexes
+
+inputs$ctl$fleetnames <- inputs$dat$fleetinfo$fleetname
+inputs$ctl$Nfleets <- length(inputs$ctl$fleetnames)
+inputs$ctl$N_lambdas <- nrow(inputs$ctl$lambdas)
+if (nrow(inputs$ctl$lambdas) == 0) inputs$ctl$lambdas <- NULL
 
 # Write back to mod_path
 r4ss::SS_write(inputs, dir = mod_path, overwrite = TRUE)
@@ -350,7 +443,6 @@ mw_ss_script <- function (
         row_apply(spec$fleet, mw_ss_code_aldist, spec, xlsx),
         row_apply(spec$abund, mw_ss_code_aldist, spec, xlsx),
         mw_ss_code_footer(spec, xlsx),
-# TODO: Params
 #        (if (compile) mw_ss_code_compile(spec, xlsx) else ""),
 #        (if (run) mw_ss_code_run(spec) else ""),
         ""), collapse = "\n")

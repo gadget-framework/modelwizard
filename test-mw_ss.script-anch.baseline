@@ -50,6 +50,13 @@ inputs$dat$lencomp <- inputs$dat$lencomp[c(),,drop = FALSE]
 inputs$dat$age_info <- inputs$dat$age_info[c(),,drop = FALSE]
 inputs$dat$agecomp <- inputs$dat$agecomp[c(),,drop = FALSE]
 inputs$dat$MeanSize_at_Age_obs <- inputs$dat$MeanSize_at_Age_obs[c(),,drop = FALSE]
+inputs$ctl$Q_options <- inputs$ctl$Q_options[c(),,drop = FALSE]
+inputs$ctl$Q_parms <- inputs$ctl$Q_parms[c(),,drop = FALSE]
+inputs$ctl$size_selex_types <- inputs$ctl$size_selex_types[c(),,drop = FALSE]
+inputs$ctl$size_selex_parms <- inputs$ctl$size_selex_parms[c(),,drop = FALSE]
+inputs$ctl$age_selex_types <- inputs$ctl$age_selex_types[c(),,drop = FALSE]
+inputs$ctl$age_selex_parms <- inputs$ctl$age_selex_parms[c(),,drop = FALSE]
+inputs$ctl$lambdas <- inputs$ctl$lambdas[c(),,drop = FALSE]
 
 
 # Create area definitions ####################
@@ -127,6 +134,58 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
+inputs$ctl$size_selex_types["seine",] <- list(
+    Pattern = 1,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "seine"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "seine"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+inputs$ctl$age_selex_types["seine",] <- list(
+    Pattern = 11,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", "seine"),] <- list(
+    LO = -2,
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "seine"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
 
 # Create fleet definition for ecocadiz ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
@@ -180,6 +239,58 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch = landings_ecocadiz[["weight"]],
     catch_se = 0.01,
     stringsAsFactors = TRUE))
+
+inputs$ctl$size_selex_types["ecocadiz",] <- list(
+    Pattern = 1,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ecocadiz"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ecocadiz"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+inputs$ctl$age_selex_types["ecocadiz",] <- list(
+    Pattern = 11,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", "ecocadiz"),] <- list(
+    LO = -2,
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "ecocadiz"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
 
 
 # Create fleet definition for pelago ####################
@@ -235,6 +346,58 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
+inputs$ctl$size_selex_types["pelago",] <- list(
+    Pattern = 1,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "pelago"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "pelago"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+inputs$ctl$age_selex_types["pelago",] <- list(
+    Pattern = 11,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", "pelago"),] <- list(
+    LO = -2,
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "pelago"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
 
 # Create abundance index for si_ecocadiz ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
@@ -279,6 +442,34 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     se_log = 0.3,
     stringsAsFactors = TRUE))
 
+inputs$ctl$Q_options <- rbind(inputs$ctl$Q_options, data.frame(
+    fleet = "si_ecocadiz",  # NB: Use fleetnames for now, will renumber later
+    link = 1,
+    link_info = 0,
+    extra_se = 0,
+    biasadj = 0,
+    float = 0))
+inputs$ctl$Q_parms[paste0("LnQ_base_", "si_ecocadiz"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_ecocadiz"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
 
 # Create abundance index for si_pelago ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
@@ -322,6 +513,34 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     obs = dist_si_pelago[["number"]],  # TODO: Do we need to scale if numbers?
     se_log = 0.3,
     stringsAsFactors = TRUE))
+
+inputs$ctl$Q_options <- rbind(inputs$ctl$Q_options, data.frame(
+    fleet = "si_pelago",  # NB: Use fleetnames for now, will renumber later
+    link = 1,
+    link_info = 0,
+    extra_se = 0,
+    biasadj = 0,
+    float = 0))
+inputs$ctl$Q_parms[paste0("LnQ_base_", "si_pelago"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_pelago"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
 
 
 # Create length distribution for seine ####################
@@ -467,6 +686,7 @@ inputs$dat$catch$fleet <- as.numeric(factor(inputs$dat$catch$fleet, levels = inp
 inputs$dat$CPUEinfo$Fleet <- as.numeric(factor(inputs$dat$CPUEinfo$Fleet, levels = inputs$dat$fleetinfo$fleetname))
 inputs$dat$CPUE$index <- as.numeric(factor(inputs$dat$CPUE$index, levels = inputs$dat$fleetinfo$fleetname))
 inputs$dat$lencomp$FltSvy <- as.numeric(factor(inputs$dat$lencomp$FltSvy, levels = inputs$dat$fleetinfo$fleetname))
+inputs$ctl$Q_options$fleet <- as.numeric(factor(inputs$ctl$Q_options$fleet, levels = inputs$dat$fleetinfo$fleetname))
 
 # Set rownames (so they can be added as comments into data.ss)
 rownames(inputs$dat$fleetinfo) <- inputs$dat$fleetinfo$fleetname
@@ -493,6 +713,11 @@ if (nrow(inputs$dat$MeanSize_at_Age_obs) > 0) {
     inputs$dat$MeanSize_at_Age_obs <- NULL  # r4ss wont write 0-row data.frames
 }
 inputs$dat$Ngenders <- inputs$dat$Nsexes
+
+inputs$ctl$fleetnames <- inputs$dat$fleetinfo$fleetname
+inputs$ctl$Nfleets <- length(inputs$ctl$fleetnames)
+inputs$ctl$N_lambdas <- nrow(inputs$ctl$lambdas)
+if (nrow(inputs$ctl$lambdas) == 0) inputs$ctl$lambdas <- NULL
 
 # Write back to mod_path
 r4ss::SS_write(inputs, dir = mod_path, overwrite = TRUE)

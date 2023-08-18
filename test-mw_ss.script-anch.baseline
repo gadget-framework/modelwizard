@@ -679,6 +679,18 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
 
 
 
+# Set params from table ####################
+params <- readxl::read_excel(data_path, "params")
+
+
+param_re <- "VonBert_K"
+inp_name <- "anch.K"
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "INIT"] <- params[params$switch == inp_name, "value"]
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "LO"] <- params[params$switch == inp_name, "lower"]
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "HI"] <- params[params$switch == inp_name, "upper"]
+
+
+
 # Finalise model #######################
 
 # Convert names to numbered fleets

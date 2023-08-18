@@ -368,6 +368,22 @@ mw_ss_code_aldist <- function (r, spec, xlsx) {
 # TODO: Not supported yet
 )')}
 
+
+mw_ss_code_params <- function (r, spec, xlsx) {
+    stock_name <- spec$stock$name
+
+    template_str(r'(
+# Set params from table ####################
+${mw_ss_code_readxl("params", xlsx)}
+
+param_re <- "VonBert_K"
+inp_name <- ${deparse1(paste0(stock_name, ".K"))}
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "INIT"] <- params[params$switch == inp_name, "value"]
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "LO"] <- params[params$switch == inp_name, "lower"]
+inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "HI"] <- params[params$switch == inp_name, "upper"]
+
+)')}
+
 mw_ss_code_footer <- function(spec, xlsx) {
     fleet_syms <- vapply(spec$fleet$name, function (r_name) escape_sym(paste0('fleet_', r_name)), character(1))
     abund_syms <- vapply(spec$abund$name, function (r_name) escape_sym(paste0('abund_', r_name)), character(1))
@@ -442,6 +458,7 @@ mw_ss_script <- function (
         row_apply(spec$abund, mw_ss_code_ldist, spec, xlsx),
         row_apply(spec$fleet, mw_ss_code_aldist, spec, xlsx),
         row_apply(spec$abund, mw_ss_code_aldist, spec, xlsx),
+        mw_ss_code_params(spec$params, spec, xlsx),
         mw_ss_code_footer(spec, xlsx),
 #        (if (compile) mw_ss_code_compile(spec, xlsx) else ""),
 #        (if (run) mw_ss_code_run(spec) else ""),

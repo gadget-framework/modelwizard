@@ -142,6 +142,12 @@ inputs$dat$age_info[${deparse1(r$name)},] <- list(
     ParmSelect = 0,
     minsamplesize = 0.001)
 
+inputs$dat$CPUEinfo[${deparse1(r$name)},] <- list(
+    Fleet = ${deparse1(r$name)},  # NB: Use fleetnames for now, will renumber later
+    Units = 0,
+    Errtype = 0,
+    SD_Report = 0)
+
 # Equilibrium catch fields
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = -999,

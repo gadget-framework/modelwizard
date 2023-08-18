@@ -102,6 +102,12 @@ inputs$dat$age_info["seine",] <- list(
     ParmSelect = 0,
     minsamplesize = 0.001)
 
+inputs$dat$CPUEinfo["seine",] <- list(
+    Fleet = "seine",  # NB: Use fleetnames for now, will renumber later
+    Units = 0,
+    Errtype = 0,
+    SD_Report = 0)
+
 # Equilibrium catch fields
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = -999,
@@ -150,6 +156,12 @@ inputs$dat$age_info["ecocadiz",] <- list(
     ParmSelect = 0,
     minsamplesize = 0.001)
 
+inputs$dat$CPUEinfo["ecocadiz",] <- list(
+    Fleet = "ecocadiz",  # NB: Use fleetnames for now, will renumber later
+    Units = 0,
+    Errtype = 0,
+    SD_Report = 0)
+
 # Equilibrium catch fields
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = -999,
@@ -197,6 +209,12 @@ inputs$dat$age_info["pelago",] <- list(
     CompError = 0,
     ParmSelect = 0,
     minsamplesize = 0.001)
+
+inputs$dat$CPUEinfo["pelago",] <- list(
+    Fleet = "pelago",  # NB: Use fleetnames for now, will renumber later
+    Units = 0,
+    Errtype = 0,
+    SD_Report = 0)
 
 # Equilibrium catch fields
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(

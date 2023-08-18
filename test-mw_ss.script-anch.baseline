@@ -50,7 +50,6 @@ inputs$dat$lencomp <- inputs$dat$lencomp[c(),,drop = FALSE]
 inputs$dat$age_info <- inputs$dat$age_info[c(),,drop = FALSE]
 inputs$dat$agecomp <- inputs$dat$agecomp[c(),,drop = FALSE]
 inputs$dat$MeanSize_at_Age_obs <- inputs$dat$MeanSize_at_Age_obs[c(),,drop = FALSE]
-inputs$dat$use_MeanSize_at_Age_obs <- 0
 
 
 # Create area definitions ####################
@@ -462,7 +461,19 @@ for (n in names(inputs$dat$lencomp)[-seq_len(6)]) {
 # Derived values
 inputs$dat$Nfleets <- nrow(inputs$dat$fleetinfo)
 inputs$dat$N_lbins <- length(inputs$dat$lbin_vector)
+if (nrow(inputs$dat$lencomp) > 0) {
+    inputs$dat$use_lencomp <- 1
+} else {
+    inputs$dat$use_lencomp <- 0
+    inputs$dat$lencomp <- NULL  # r4ss wont write 0-row data.frames
+}
 inputs$dat$N_agebins <- length(inputs$dat$agebin_vector)
+if (nrow(inputs$dat$MeanSize_at_Age_obs) > 0) {
+    inputs$dat$use_MeanSize_at_Age_obs <- 1
+} else {
+    inputs$dat$use_MeanSize_at_Age_obs <- 0
+    inputs$dat$MeanSize_at_Age_obs <- NULL  # r4ss wont write 0-row data.frames
+}
 inputs$dat$Ngenders <- inputs$dat$Nsexes
 
 # Write back to mod_path

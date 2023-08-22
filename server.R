@@ -167,6 +167,18 @@ server <- function(input, output, session) {
             params = TRUE,
             data = TRUE), path = file)
     })
+    output$file_save_g3_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
+        writexl::write_xlsx(extractDataFrames(input,
+            spec = TRUE,
+            params = TRUE,
+            data = TRUE), path = file)
+    })
+    output$file_save_ss_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
+        writexl::write_xlsx(extractDataFrames(input,
+            spec = TRUE,
+            params = TRUE,
+            data = TRUE), path = file)
+    })
 
     # Stocks ##################################################################
 

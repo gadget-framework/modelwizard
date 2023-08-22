@@ -85,10 +85,20 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       ""),
 
   tabPanel(T("Gadget3 script"), value = 'script_g3',
+      p(
+        T("If you haven't already"),
+        downloadLink("file_save_g3_act", T("download your data as a spreadsheet")),
+        T("then copy and paste the script below:"),
+        ""),
       verbatimTextOutput('script_g3_text'),
       ""),
 
   tabPanel(T("SS3/r4ss script"), value = 'script_ss',
+      p(
+        T("If you haven't already"),
+        downloadLink("file_save_ss_act", T("download your data as a spreadsheet")),
+        T("then copy and paste the script below:"),
+        ""),
       verbatimTextOutput('script_ss_text'),
       ""),
 

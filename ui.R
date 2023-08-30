@@ -19,8 +19,7 @@ timestep_choices = list(
 names(timestep_choices) <- vapply(names(timestep_choices), T, character(1))
 
 navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
-  title = div(
-    span(branding_name),
+  title =  tagList(branding_title,
     a(icon("github", lib = "font-awesome"),
       href="https://github.com/gadget-framework/modelwizard",
       class="navbar-brand",

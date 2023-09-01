@@ -255,7 +255,11 @@ server <- function(input, output, session) {
 
     # Fleet data ##############################################################
 
-    data_init_cols <- function (df_type, df_unit, genId, genStockId) {
+    data_init_cols <- function (df_type, df_unit, base_name) {
+        genId <- function (...) paste(c(base_name, ...), collapse = "_")
+        # NB: Assume there's only one stock for now
+        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
+
         df_names <- c("year", "step", "area")
         if (df_unit == 'none') return(NULL)
 
@@ -292,7 +296,11 @@ server <- function(input, output, session) {
             number = list(name = "number", title = T("Landings (count)"), content = "numeric"),
             end = NULL)[unlist(df_names)], names = df_names)
     }
-    data_init_value <- function (df_type, df_unit, genId, genStockId) {
+    data_init_value <- function (df_type, df_unit, base_name) {
+        genId <- function (...) paste(c(base_name, ...), collapse = "_")
+        # NB: Assume there's only one stock for now
+        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
+
         df_values <- list(
             year = seq(input$time_1_year_min, input$time_1_year_max),
             step = if (isTRUE(input[[genId('step_active')]] > 0)) input[[genId('step_active')]] else seq_len(input$time_1_steps),
@@ -327,10 +335,8 @@ server <- function(input, output, session) {
         df_type <- parts[[3]]
         df_unit <- input[[df_inp_name]]
         genId <- function (...) paste(c(base_name, ...), collapse = "_")
-        # NB: Assume there's only one stock for now
-        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
 
-        init_cols <- data_init_cols(df_type, df_unit, genId, genStockId)
+        init_cols <- data_init_cols(df_type, df_unit, base_name)
         if (is.null(init_cols)) return(NULL)
 
         df <- isolate(input[[genId(df_type, 'df')]])
@@ -344,7 +350,7 @@ server <- function(input, output, session) {
             df <- df[, init_cols, drop = FALSE]
         }
         observeEvent(input[[genId(df_type, 'prepopulate')]], {
-            df <- data_init_value(df_type, df_unit, genId, genStockId)
+            df <- data_init_value(df_type, df_unit, base_name)
             hodfr::updateHodfrInput(session, genId(df_type, 'df'), value = df)
         })
         # Set initial data

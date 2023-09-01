@@ -347,6 +347,8 @@ server <- function(input, output, session) {
             df <- data_init_value(df_type, df_unit, genId, genStockId)
             hodfr::updateHodfrInput(session, genId(df_type, 'df'), value = df)
         })
+        # Set initial data
+        hodfr::updateHodfrInput(session, genId(df_type, 'df'), value = df)
         tabPanel(
             sprintf("%s: %s", input[[genId('name')]], T(df_type)),
             value = genId(df_type, 'tab'),
@@ -355,7 +357,6 @@ server <- function(input, output, session) {
                 genId(df_type, 'df'),
                 fields = unname(data_cols_to_fields(names(df))),
                 values = list(type = "bins"),
-                value = df,
                 orientation = 'horizontal'))
     }))))
     observeEvent(input$nav_tabs, if (input$nav_tabs == "data") {

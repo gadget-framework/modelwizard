@@ -39,6 +39,81 @@ reactiveSections <- function (input, val_name, ui_func, default_count = 0, butto
             ""))))))
 }
 
+data_init_cols <- function (input, df_type, df_unit, base_name) {
+    genId <- function (...) paste(c(base_name, ...), collapse = "_")
+    # NB: Assume there's only one stock for now
+    genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
+
+    df_names <- c("year", "step", "area")
+    if (df_unit == 'none') return(NULL)
+
+    if (df_type == 'adist' || df_type == 'aldist') {
+        if (any(!is.finite(c(
+            input[[genStockId('age_min')]],
+            input[[genStockId('age_max')]])))) return(NULL)
+        df_names <- c(df_names, "age")
+    }
+
+    if (df_type == 'ldist' || df_type == 'aldist') {
+        if (any(!is.finite(c(
+            input[[genStockId('lg_min')]],
+            input[[genStockId('lg_max')]],
+            input[[genStockId('lg_size')]])))) return(NULL)
+        df_names <- c(df_names, "length")
+    }
+
+    if (identical(df_unit, 'weight')) {
+        df_names <- c(df_names, "weight")
+    } else {
+        df_names <- c(df_names, "number")
+    }
+    return(df_names)
+}
+data_cols_to_fields <- function (df_names) {
+    structure(list(
+        year = list(name = "year", title = T("Year"), content = "numeric"),
+        step = list(name = "step", title = T("Step"), content = "numeric"),
+        area = list(name = "area", title = T("Area")),
+        age = list(name = "age", title = T("Age")),
+        length = list(name = "length", title = T("Length")),
+        weight = list(name = "weight", title = T("Landings (tonnes)"), content = "numeric"),
+        number = list(name = "number", title = T("Landings (count)"), content = "numeric"),
+        end = NULL)[unlist(df_names)], names = df_names)
+    }
+data_init_value <- function (input, df_type, df_unit, base_name) {
+    genId <- function (...) paste(c(base_name, ...), collapse = "_")
+    # NB: Assume there's only one stock for now
+    genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
+
+    df_values <- list(
+        year = seq(input$time_1_year_min, input$time_1_year_max),
+        step = if (isTRUE(input[[genId('step_active')]] > 0)) input[[genId('step_active')]] else seq_len(input$time_1_steps),
+        area = input$area_1_name)
+
+    if (df_type == 'adist' || df_type == 'aldist') {
+        if (any(!is.finite(c(
+            input[[genStockId('age_min')]],
+            input[[genStockId('age_max')]])))) return(NULL)
+        df_values <- c(df_values, list(
+            age = seq(
+                input[[genStockId('age_min')]],
+                input[[genStockId('age_max')]])))
+    }
+
+    if (df_type == 'ldist' || df_type == 'aldist') {
+        if (any(!is.finite(c(
+            input[[genStockId('lg_min')]],
+            input[[genStockId('lg_max')]],
+            input[[genStockId('lg_size')]])))) return(NULL)
+        df_values <- c(df_values, list(
+            length = levels(cut(0, c(seq(
+                input[[genStockId('lg_min')]],
+                input[[genStockId('lg_max')]],
+                input[[genStockId('lg_size')]]), Inf), right = FALSE))))
+    }
+    return(do.call(rev.expand.grid, df_values))
+}
+
 extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE) {
     extractSingleDataFrame <- function (input, base_name) {
         out <- list()
@@ -68,14 +143,24 @@ extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE)
 
     if (data) {
         # Extract extra data
-        for (n in names(input)) {
-            m <- regmatches(n, regexec('^([a-z]+_\\d+)_(.+)_df$', n))[[1]]
+        for (df_name in names(input)) {
+            m <- regmatches(df_name, regexec('^([a-z]+_\\d+)_(.+)_df$', df_name))[[1]]
             if (length(m) != 3) next
+            df <- input[[df_name]]
+
+            if (nrow(df) == 1 && all(is.na(df))) {
+                # Still has no data, populate it now
+                df_inp_name <- gsub('_df$', '', df_name)
+                df_type <- m[[3]]
+                df_unit <- isolate(input[[df_inp_name]])
+                df <- data_init_value(input, df_type, df_unit, m[[2]])
+            }
+
             ws_name <- paste(
                 m[[3]],  # Table type
                 input[[paste(m[[2]], 'name', sep = "_")]],  # Corresponding fleet_x_name input
                 sep = "_")
-            out[[ws_name]] <- input[[n]]
+            out[[ws_name]] <- df
         }
     }
 
@@ -255,91 +340,18 @@ server <- function(input, output, session) {
 
     # Fleet data ##############################################################
 
-    data_init_cols <- function (df_type, df_unit, base_name) {
-        genId <- function (...) paste(c(base_name, ...), collapse = "_")
-        # NB: Assume there's only one stock for now
-        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
-
-        df_names <- c("year", "step", "area")
-        if (df_unit == 'none') return(NULL)
-
-        if (df_type == 'adist' || df_type == 'aldist') {
-            if (any(!is.finite(c(
-                input[[genStockId('age_min')]],
-                input[[genStockId('age_max')]])))) return(NULL)
-            df_names <- c(df_names, "age")
-        }
-
-        if (df_type == 'ldist' || df_type == 'aldist') {
-            if (any(!is.finite(c(
-                input[[genStockId('lg_min')]],
-                input[[genStockId('lg_max')]],
-                input[[genStockId('lg_size')]])))) return(NULL)
-            df_names <- c(df_names, "length")
-        }
-
-        if (identical(df_unit, 'weight')) {
-            df_names <- c(df_names, "weight")
-        } else {
-            df_names <- c(df_names, "number")
-        }
-        return(df_names)
-    }
-    data_cols_to_fields <- function (df_names) {
-        structure(list(
-            year = list(name = "year", title = T("Year"), content = "numeric"),
-            step = list(name = "step", title = T("Step"), content = "numeric"),
-            area = list(name = "area", title = T("Area")),
-            age = list(name = "age", title = T("Age")),
-            length = list(name = "length", title = T("Length")),
-            weight = list(name = "weight", title = T("Landings (tonnes)"), content = "numeric"),
-            number = list(name = "number", title = T("Landings (count)"), content = "numeric"),
-            end = NULL)[unlist(df_names)], names = df_names)
-    }
-    data_init_value <- function (df_type, df_unit, base_name) {
-        genId <- function (...) paste(c(base_name, ...), collapse = "_")
-        # NB: Assume there's only one stock for now
-        genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
-
-        df_values <- list(
-            year = seq(input$time_1_year_min, input$time_1_year_max),
-            step = if (isTRUE(input[[genId('step_active')]] > 0)) input[[genId('step_active')]] else seq_len(input$time_1_steps),
-            area = input$area_1_name)
-
-        if (df_type == 'adist' || df_type == 'aldist') {
-            if (any(!is.finite(c(
-                input[[genStockId('age_min')]],
-                input[[genStockId('age_max')]])))) return(NULL)
-            df_values <- c(df_values, list(
-                age = seq(
-                    input[[genStockId('age_min')]],
-                    input[[genStockId('age_max')]])))
-        }
-
-        if (df_type == 'ldist' || df_type == 'aldist') {
-            if (any(!is.finite(c(
-                input[[genStockId('lg_min')]],
-                input[[genStockId('lg_max')]],
-                input[[genStockId('lg_size')]])))) return(NULL)
-            df_values <- c(df_values, list(
-                length = levels(cut(0, c(seq(
-                    input[[genStockId('lg_min')]],
-                    input[[genStockId('lg_max')]],
-                    input[[genStockId('lg_size')]]), Inf), right = FALSE))))
-        }
-        return(do.call(rev.expand.grid, df_values))
-    }
     output$all_data <- renderUI(do.call(tabsetPanel, c(list(id = "all_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:landings|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]
         df_unit <- input[[df_inp_name]]
+        df_name <- paste0(df_inp_name, '_df')
         genId <- function (...) paste(c(base_name, ...), collapse = "_")
 
-        init_cols <- data_init_cols(df_type, df_unit, base_name)
+        init_cols <- data_init_cols(input, df_type, df_unit, base_name)
         if (is.null(init_cols)) return(NULL)
 
-        df <- isolate(input[[genId(df_type, 'df')]])
+        df <- isolate(input[[df_name]])
         if (is.null(df)) df <- data.frame(x = NA)
         if (!identical(init_cols, names(df))) {
             for (extra in setdiff(init_cols, names(df))) {
@@ -350,30 +362,40 @@ server <- function(input, output, session) {
             df <- df[, init_cols, drop = FALSE]
         }
         observeEvent(input[[genId(df_type, 'prepopulate')]], {
-            df <- data_init_value(df_type, df_unit, base_name)
-            hodfr::updateHodfrInput(session, genId(df_type, 'df'), value = df)
+            df <- data_init_value(input, df_type, df_unit, base_name)
+            hodfr::updateHodfrInput(session, df_name, value = df)
         })
         # Set initial data
-        hodfr::updateHodfrInput(session, genId(df_type, 'df'), value = df)
+        hodfr::updateHodfrInput(session, df_name, value = df)
         tabPanel(
             sprintf("%s: %s", input[[genId('name')]], T(df_type)),
             value = genId(df_type, 'tab'),
             actionButton(genId(df_type, 'prepopulate'), T("Clear & prepopulate values")),
             hodfr::hodfr(
-                genId(df_type, 'df'),
+                df_name,
                 fields = unname(data_cols_to_fields(names(df))),
                 values = list(type = "bins"),
                 orientation = 'horizontal'))
     }))))
-    observeEvent(input$nav_tabs, if (input$nav_tabs == "data") {
-        # NB: handsondataframe won't render properly if table isn't visible,
-        # so explicitly tell the targeted tab to re-render when we switch
-        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$all_data_tabs))
-    })
-    observeEvent(input$all_data_tabs, {
-        # NB: handsondataframe won't render properly if table isn't visible,
-        # so explicitly tell the targeted tab to re-render when we switch
-        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$all_data_tabs))
+    observeEvent(c(input$nav_tabs, input$all_data_tabs), if (isolate(input$nav_tabs) == "data") {
+        df_inp_name <- gsub('_tab$', '', isolate(input$all_data_tabs))
+        df_name <- paste0(df_inp_name, '_df')
+
+        df <- isolate(input[[df_name]])
+        if (nrow(df) == 1 && all(is.na(df))) {
+            parts <- strsplit(df_inp_name, "_")[[1]]
+            base_name <- paste(parts[[1]], parts[[2]], sep = "_")
+            df_type <- parts[[3]]
+            df_unit <- isolate(input[[df_inp_name]])
+
+            # Still has no data, populate it now
+            df <- data_init_value(input, df_type, df_unit, base_name)
+            hodfr::updateHodfrInput(session, df_name, value = df)
+        } else {
+            # NB: handsondataframe won't render properly if table isn't visible,
+            # so explicitly tell the targeted tab to re-render when we switch
+            hodfr::renderHodfrInput(session, df_name)
+        }
     })
     # Always render data, so if we hit save without visiting the tab it's been computed
     outputOptions(output, "all_data", suspendWhenHidden = FALSE)

@@ -8,7 +8,7 @@ At the very top of the page, you will see a set of tabs:
 * **Data**: Here you can view fill in the data tables required by the structure
 * **Parameters**: Here you can view parameters the model will need, and set min/max/initial values
 * **Gadget3 script**: Here you can get an R script to build a [gadget3](https://gadget-framework.github.io/gadget3/) model using your specification & data
-* **SS3/r4ss script**: Here you can get an R script to build a [r4ss](https://gadget-framework.github.io/gadget3/) model using your specification & data
+* **SS3/r4ss script**: Here you can get an R script to build a [r4ss](https://github.com/r4ss/r4ss) model using your specification & data
 
 ## Building a model
 

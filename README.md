@@ -1,5 +1,7 @@
 # ModelWizard: A marine model builder for Gadget3 and SS3
 
+* [User guide](user-guide.md)
+
 ## Local installation
 
 The following system dependencies need to be installed:

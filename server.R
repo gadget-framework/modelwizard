@@ -202,6 +202,9 @@ server <- function(input, output, session) {
             df <- as.data.frame(readxl::read_excel(file_path, n))
             sect[[n]]$count(0)
             sect[[n]]$count(nrow(df))
+            # Temporarily increase step count to maximum,
+            # updating available step_active choices now so we don't choose an invalid value
+            updateSelectInput(session, 'time_1_steps', selected = 12)
         }
 
         # Pass 2 (after UI recalculated): Set sect values

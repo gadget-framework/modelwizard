@@ -69,7 +69,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
   tabPanel(T("Data"), value = 'data',
       p(class="help-block", T("To start from scratch, first press 'Clear and prepopulate values'. Then either fill in the data here, or save as spreadsheet on the previous tab, fill in the data and re-load.")),
       p(class="help-block", T("The available tables are based on the options selected in the 'Specification' tab, if a table is missing go back and change options there.")),
-      uiOutput("fleets_data"),
+      uiOutput("all_data"),
       ""),
 
   tabPanel(T("Parameters"), value = 'parameters',

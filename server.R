@@ -321,7 +321,7 @@ server <- function(input, output, session) {
         }
         return(do.call(rev.expand.grid, df_values))
     }
-    output$fleets_data <- renderUI(do.call(tabsetPanel, c(list(id = "fleets_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:landings|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+    output$all_data <- renderUI(do.call(tabsetPanel, c(list(id = "all_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:landings|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]
@@ -362,15 +362,15 @@ server <- function(input, output, session) {
     observeEvent(input$nav_tabs, if (input$nav_tabs == "data") {
         # NB: handsondataframe won't render properly if table isn't visible,
         # so explicitly tell the targeted tab to re-render when we switch
-        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
+        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$all_data_tabs))
     })
-    observeEvent(input$fleets_data_tabs, {
+    observeEvent(input$all_data_tabs, {
         # NB: handsondataframe won't render properly if table isn't visible,
         # so explicitly tell the targeted tab to re-render when we switch
-        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$fleets_data_tabs))
+        hodfr::renderHodfrInput(session, gsub('_tab$', '_df', input$all_data_tabs))
     })
     # Always render data, so if we hit save without visiting the tab it's been computed
-    outputOptions(output, "fleets_data", suspendWhenHidden = FALSE)
+    outputOptions(output, "all_data", suspendWhenHidden = FALSE)
 
     # Model parameters ########################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'parameters') {

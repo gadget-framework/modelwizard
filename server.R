@@ -14,6 +14,16 @@ list.swapnames <- function (...) {
     structure(as.list(names(inp)), names = inp)
 }
 
+# Naive coalesce implementation
+coalesce <- function (...) {
+    if (!is.null(..1)) return(..1)
+    if (!is.null(..2)) return(..2)
+    if (!is.null(..3)) return(..3)
+    if (!is.null(..4)) return(..4)
+    if (!is.null(..5)) return(..5)
+    stop("coalesce doesn't support more than 5 arguments")
+}
+
 # Wait for renderUI blocks to do their thing, then carry on
 # https://github.com/rstudio/shiny/issues/3348#issuecomment-810727477
 executeAtNextInput <- function(session = getDefaultReactiveDomain(), values = reactiveValuesToList(session$input), expr) {
@@ -86,7 +96,7 @@ data_init_value <- function (input, df_type, df_unit, base_name) {
     genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
 
     df_values <- list(
-        year = seq(input$time_1_year_min, input$time_1_year_max),
+        year = seq(input[[genId('year_min')]], input[[genId('year_max')]]),
         step = if (isTRUE(input[[genId('step_active')]] > 0)) input[[genId('step_active')]] else seq_len(input$time_1_steps),
         area = input$area_1_name)
 
@@ -291,6 +301,17 @@ server <- function(input, output, session) {
     sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
         p(class="help-block", T("An identifier to name the fleet within the model. Letters, numbers and underscore are allowed.")),
+        div(class="row",
+            div(class="col-md-3", numericInput(genId('year_min'), isolate(coalesce(
+                input[[genId('year_min')]],
+                input[['time_1_year_min']],
+                1990)), label=T("Start year for fleet"))),
+            div(class="col-md-3", numericInput(genId('year_max'), isolate(coalesce(
+                input[[genId('year_max')]],
+                input[['time_1_year_max']],
+                1999)), label=T("End year for fleet"))),
+            ""),
+        p(class="help-block", T("Years that this fleet will be active / data is available for. Should be within overall model years above.")),
         hideIfOneTimestep(tagList(
             selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]])),
             p(class="help-block", T("If the fleet is only active in one step/season in the year, choose it here.")),
@@ -316,6 +337,17 @@ server <- function(input, output, session) {
     sect$abund <- reactiveSections(input, 'abund', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         p(class="help-block", T("An identifier to name the abundance index within the model. Letters, numbers and underscore are allowed.")),
+        div(class="row",
+            div(class="col-md-3", numericInput(genId('year_min'), isolate(coalesce(
+                input[[genId('year_min')]],
+                input[['time_1_year_min']],
+                1990)), label=T("Start year for survey"))),
+            div(class="col-md-3", numericInput(genId('year_max'), isolate(coalesce(
+                input[[genId('year_max')]],
+                input[['time_1_year_max']],
+                1999)), label=T("End year for survey"))),
+            ""),
+        p(class="help-block", T("Years that this survey will be active / data is available for. Should be within overall model years above.")),
         hideIfOneTimestep(tagList(
             selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]])),
             p(class="help-block", T("If the survey is only performed in one step/season in the year, choose it here.")),

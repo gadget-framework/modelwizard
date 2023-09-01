@@ -184,15 +184,18 @@ server <- function(input, output, session) {
 
     sect$stock <- reactiveSections(input, 'stock', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Identifier")),
+        p(class="help-block", T("An identifier to name the species within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('lg_min'), T("Minimum length group"), isolate(input[[genId('lg_min')]]))),
             div(class="col-md-3", numericInput(genId('lg_max'), T("Maximum length group"), isolate(input[[genId('lg_max')]]))),
             div(class="col-md-3", numericInput(genId('lg_size'), T("Length group size"), isolate(input[[genId('lg_size')]]))),
             ""),
+        p(class="help-block", T("Length bins for your stock. The final group in the model will be maximum..Inf.")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('age_min'), T("Minimum age"), isolate(input[[genId('age_min')]]))),
             div(class="col-md-3", numericInput(genId('age_max'), T("Maximum age"), isolate(input[[genId('age_max')]]))),
             ""),
+        p(class="help-block", T("Age bins for your stock.")),
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('renewal_step')]]))),
         hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
@@ -202,11 +205,15 @@ server <- function(input, output, session) {
 
     sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
-        hideIfOneTimestep(
-            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
+        p(class="help-block", T("An identifier to name the fleet within the model. Letters, numbers and underscore are allowed.")),
+        hideIfOneTimestep(tagList(
+            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]])),
+            p(class="help-block", T("If the fleet is only active in one step/season in the year, choose it here.")),
+            span())),
         selectInput(genId('landings'), T("Landings in"), structure(
             c('weight', 'number'),
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
+        p(class="help-block", T("The unit the landings data for this fleet will be provided in on the next tab.")),
         div(class="row",
             div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
                 none = T('No data'),
@@ -217,13 +224,17 @@ server <- function(input, output, session) {
                 weight = T('Tonnes'),
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
+        p(class="help-block", T("If age or age-length distribution data is available, select the relevant option and fill in the data in the next tab.")),
         hr()))
     output$fleets <- sect$fleet$ui
 
     sect$abund <- reactiveSections(input, 'abund', function (genId) tagList(
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
-        hideIfOneTimestep(
-            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]]))),
+        p(class="help-block", T("An identifier to name the abundance index within the model. Letters, numbers and underscore are allowed.")),
+        hideIfOneTimestep(tagList(
+            selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]])),
+            p(class="help-block", T("If the survey is only performed in one step/season in the year, choose it here.")),
+            span())),
         div(class="row",
             div(class="col-md-3", selectInput(genId('dist'), T("Aggregated observations"), list.swapnames(
                 none = T('No data'),
@@ -238,6 +249,7 @@ server <- function(input, output, session) {
                 weight = T('Tonnes'),
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
+        p(class="help-block", T("Select which kinds of abudance distribution data are available and fill in the data in the next tab.")),
         hr()))
     output$abund <- sect$abund$ui
 

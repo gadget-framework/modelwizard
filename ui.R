@@ -40,6 +40,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
 
       h3(T("Area")),
       textInput('area_1_name', 'all', label=T("Area name")),
+      p(class="help-block", T("An identifier to use to describe the single-area within your model. Letters, numbers and underscore are allowed.")),
       hr(),
 
       h3(T("Time")),
@@ -50,6 +51,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       div(class="row",
           div(class="col-md-3", selectInput('time_1_steps', T("Steps within a year"), timestep_choices)),
           ""),
+      p(class="help-block", T("The default years your model will run from/until.")),
       hr(),
 
       h3(T("Stock")),
@@ -65,11 +67,14 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       ""),
 
   tabPanel(T("Data"), value = 'data',
+      p(class="help-block", T("To start from scratch, first press 'Clear and prepopulate values'. Then either fill in the data here, or save as spreadsheet on the previous tab, fill in the data and re-load.")),
+      p(class="help-block", T("The available tables are based on the options selected in the 'Specification' tab, if a table is missing go back and change options there.")),
       uiOutput("fleets_data"),
       ""),
 
   tabPanel(T("Parameters"), value = 'parameters',
       h3(T("Model parameters")),
+      p(class="help-block", T("The model parameters below are based on what a gadget3 model would require. See the gadget3 documentation on what each option means at "), a(href="https://gadget-framework.github.io/gadget3", "https://gadget-framework.github.io/gadget3")),
       verbatimTextOutput('parameters_error'),
       hodfr::hodfr(
           'params',

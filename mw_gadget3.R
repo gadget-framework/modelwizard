@@ -19,7 +19,7 @@ data_path <- ${deparse1(xlsx)}
 
 mw_g3_code_readxl <- function (sheet_name, xlsx) {
     if (!nzchar(xlsx)) return("")
-    template_str('${escape_sym(sheet_name)} <- read_excel(data_path, ${deparse1(sheet_name)})\n')
+    template_str('${escape_sym(sheet_name)} <- read_excel(data_path, ${deparse1(sheet_name)}, na = c("", "NA"))\n')
 }
 
 mw_g3_code_area <- function (spec) {
@@ -153,7 +153,7 @@ model_code <- g3_to_tmb(actions)
 params.in <- attr(model_code, "parameter_template")
 
 if (nzchar(data_path)) {
-  p <- readxl::read_excel(data_path, "params")
+  p <- readxl::read_excel(data_path, "params", na = c("", "NA"))
   params.in[p$switch, "value"] <- p$value
   params.in[p$switch, "optimise"] <- p$optimise != 0
   params.in[p$switch, "lower"] <- p$lower

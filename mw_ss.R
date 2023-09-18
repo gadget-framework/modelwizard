@@ -9,7 +9,7 @@ escape_sym <- Vectorize(function (s) deparse1(as.symbol(s), backtick = TRUE))
 
 mw_ss_code_readxl <- function (sheet_name, xlsx) {
     if (!nzchar(xlsx)) return("")
-    template_str('${escape_sym(sheet_name)} <- readxl::read_excel(data_path, ${deparse1(sheet_name)})\n')
+    template_str('${escape_sym(sheet_name)} <- readxl::read_excel(data_path, ${deparse1(sheet_name)}, na = c("", "NA"))\n')
 }
 
 mw_ss_code_header <- function (spec, xlsx) {

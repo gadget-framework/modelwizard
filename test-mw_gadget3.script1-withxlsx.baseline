@@ -46,8 +46,8 @@ actions <- c(actions, actions_ling, actions_likelihood_ling)
 # Create fleet definition for comm ####################
 comm <- g3_fleet("comm") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
 
-landings_comm <- read_excel(data_path, "landings_comm")
-ldist_comm <- read_excel(data_path, "ldist_comm")
+landings_comm <- read_excel(data_path, "landings_comm", na = c("", "NA"))
+ldist_comm <- read_excel(data_path, "ldist_comm", na = c("", "NA"))
 
 actions_comm <- list(
   g3a_predate_fleet(
@@ -77,8 +77,8 @@ actions <- c(actions, actions_comm, actions_likelihood_comm)
 # Create fleet definition for surv ####################
 surv <- g3_fleet("surv") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
 
-landings_surv <- read_excel(data_path, "landings_surv")
-aldist_surv <- read_excel(data_path, "aldist_surv")
+landings_surv <- read_excel(data_path, "landings_surv", na = c("", "NA"))
+aldist_surv <- read_excel(data_path, "aldist_surv", na = c("", "NA"))
 
 actions_surv <- list(
   g3a_predate_fleet(
@@ -106,7 +106,7 @@ actions <- c(actions, actions_surv, actions_likelihood_surv)
 
 
 # Create abundance index for acoustic ####################
-dist_acoustic <- read_excel(data_path, "dist_acoustic")
+dist_acoustic <- read_excel(data_path, "dist_acoustic", na = c("", "NA"))
 
 actions_acoustic <- list(
   NULL)
@@ -132,7 +132,7 @@ model_code <- g3_to_tmb(actions)
 params.in <- attr(model_code, "parameter_template")
 
 if (nzchar(data_path)) {
-  p <- readxl::read_excel(data_path, "params")
+  p <- readxl::read_excel(data_path, "params", na = c("", "NA"))
   params.in[p$switch, "value"] <- p$value
   params.in[p$switch, "optimise"] <- p$optimise != 0
   params.in[p$switch, "lower"] <- p$lower

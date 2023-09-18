@@ -199,7 +199,7 @@ server <- function(input, output, session) {
 
         # Pass 1: Set counts for sects
         for (n in names(sect)) {
-            df <- as.data.frame(readxl::read_excel(file_path, n))
+            df <- as.data.frame(readxl::read_excel(file_path, n, na = c("", "NA")))
             sect[[n]]$count(0)
             sect[[n]]$count(nrow(df))
             # Temporarily increase step count to maximum,

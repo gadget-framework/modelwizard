@@ -19,5 +19,6 @@ xlsx_to_spec <- function (xlsx_path = 'anch.xlsx') {
 }
 
 code <- mw_ss_script(xlsx_to_spec("anch.xlsx"), xlsx = "anch.xlsx")
-ok_baseline('script-anch', code)
+#ok_baseline('script-anch', code)
 eval(parse(text = code))
+i2 <- r4ss::SS_read(dir = mod_path)

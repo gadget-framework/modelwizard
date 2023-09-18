@@ -124,7 +124,7 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
-landings_seine <- readxl::read_excel(data_path, "landings_seine")
+landings_seine <- readxl::read_excel(data_path, "landings_seine", na = c("", "NA"))
 
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = landings_seine$year,
@@ -230,7 +230,7 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
-landings_ecocadiz <- readxl::read_excel(data_path, "landings_ecocadiz")
+landings_ecocadiz <- readxl::read_excel(data_path, "landings_ecocadiz", na = c("", "NA"))
 
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = landings_ecocadiz$year,
@@ -336,7 +336,7 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
-landings_pelago <- readxl::read_excel(data_path, "landings_pelago")
+landings_pelago <- readxl::read_excel(data_path, "landings_pelago", na = c("", "NA"))
 
 inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = landings_pelago$year,
@@ -432,7 +432,7 @@ inputs$dat$CPUEinfo["si_ecocadiz",] <- list(
     Errtype = 0,
     SD_Report = 0)
 
-dist_si_ecocadiz <- readxl::read_excel(data_path, "dist_si_ecocadiz")
+dist_si_ecocadiz <- readxl::read_excel(data_path, "dist_si_ecocadiz", na = c("", "NA"))
 
 inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     year = dist_si_ecocadiz$year,
@@ -504,7 +504,7 @@ inputs$dat$CPUEinfo["si_pelago",] <- list(
     Errtype = 0,
     SD_Report = 0)
 
-dist_si_pelago <- readxl::read_excel(data_path, "dist_si_pelago")
+dist_si_pelago <- readxl::read_excel(data_path, "dist_si_pelago", na = c("", "NA"))
 
 inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     year = dist_si_pelago$year,
@@ -545,7 +545,7 @@ inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_pelago"),] <- list(
 
 # Create length distribution for seine ####################
 
-ldist_seine <- readxl::read_excel(data_path, "ldist_seine")
+ldist_seine <- readxl::read_excel(data_path, "ldist_seine", na = c("", "NA"))
 
 
 if (nrow(inputs$dat$lencomp) == 0) {
@@ -585,7 +585,7 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
 
 # Create length distribution for ecocadiz ####################
 
-ldist_ecocadiz <- readxl::read_excel(data_path, "ldist_ecocadiz")
+ldist_ecocadiz <- readxl::read_excel(data_path, "ldist_ecocadiz", na = c("", "NA"))
 
 
 if (nrow(inputs$dat$lencomp) == 0) {
@@ -625,7 +625,7 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
 
 # Create length distribution for pelago ####################
 
-ldist_pelago <- readxl::read_excel(data_path, "ldist_pelago")
+ldist_pelago <- readxl::read_excel(data_path, "ldist_pelago", na = c("", "NA"))
 
 
 if (nrow(inputs$dat$lencomp) == 0) {
@@ -680,7 +680,7 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
 
 
 # Set params from table ####################
-params <- readxl::read_excel(data_path, "params")
+params <- readxl::read_excel(data_path, "params", na = c("", "NA"))
 
 
 param_re <- "VonBert_K"

@@ -5,10 +5,11 @@ template_str <- function (s) {
 }
 escape_sym <- Vectorize(function (s) deparse1(as.symbol(s), backtick = TRUE))
 
-mw_g3_code_header <- function (spec, xlsx) {
+mw_g3_code_header <- function (spec, xlsx, compile = FALSE, run = FALSE) {
     libs <- c(
         'gadget3',
         (if (nzchar(xlsx)) 'readxl' else NULL),
+        (if (run) "gadgetplots" else NULL),
         NULL)
     template_str(r'(
 ${paste("library(", libs, ")", sep = "", collapse = "\n")}
@@ -162,12 +163,28 @@ if (nzchar(data_path)) {
 )')}
 
 mw_g3_code_run <- function (spec) {
+grouping <- list(fleet = spec$fleet$name, abund = spec$abund$name)
     template_str(r'(
 # Examples for running model ####################
 obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
 
-fit <- gadgetutils::g3_fit(model_code, params.in)
-# gadgetplots::plot_ldist(fit)
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = ${deparse1(grouping)},
+    method = "BFGS",
+    control = list(maxit = 100, reltol = 1e-10),
+    use_parscale = TRUE,
+    shortcut = FALSE,
+    cv_floor = 0.05,
+    resume_final = FALSE)
+
+fit <- gadgetutils::g3_fit(model_code, params.out)
+gadgetplots::plot_annual(fit)
+gadgetplots::plot_biomass(fit, total = TRUE)
+gadgetplots::plot_ldist(fit)
+# gadgetplots::gadget_plots(fit, "figs", file_type = "html")
 )')}
 
 mw_g3_script <- function (
@@ -185,7 +202,7 @@ mw_g3_script <- function (
         character(1))
 
     paste(c(
-        mw_g3_code_header(spec, xlsx),
+        mw_g3_code_header(spec, xlsx, compile = compile, run = run),
         mw_g3_code_area(spec),
         row_apply(spec$time, mw_g3_code_time, spec),
         row_apply(spec$stock, mw_g3_code_stock, spec, xlsx),

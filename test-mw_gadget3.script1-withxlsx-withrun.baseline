@@ -1,6 +1,7 @@
 
 library(gadget3)
 library(readxl)
+library(gadgetplots)
 
 actions <- list()
 data_path <- "moo.xlsx"
@@ -143,7 +144,22 @@ if (nzchar(data_path)) {
 # Examples for running model ####################
 obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
 
-fit <- gadgetutils::g3_fit(model_code, params.in)
-# gadgetplots::plot_ldist(fit)
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = list(fleet = c("comm", "surv"), abund = "acoustic"),
+    method = "BFGS",
+    control = list(maxit = 100, reltol = 1e-10),
+    use_parscale = TRUE,
+    shortcut = FALSE,
+    cv_floor = 0.05,
+    resume_final = FALSE)
+
+fit <- gadgetutils::g3_fit(model_code, params.out)
+gadgetplots::plot_annual(fit)
+gadgetplots::plot_biomass(fit, total = TRUE)
+gadgetplots::plot_ldist(fit)
+# gadgetplots::gadget_plots(fit, "figs", file_type = "html")
 
 

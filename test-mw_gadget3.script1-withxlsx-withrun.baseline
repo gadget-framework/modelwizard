@@ -136,9 +136,14 @@ if (nzchar(data_path)) {
   p <- readxl::read_excel(data_path, "params", na = c("", "NA"))
   params.in[p$switch, "value"] <- p$value
   params.in[p$switch, "optimise"] <- p$optimise != 0
-  params.in[p$switch, "lower"] <- p$lower
-  params.in[p$switch, "upper"] <- p$upper
+  params.in[p$switch, "lower"] <- as.numeric(p$lower)
+  params.in[p$switch, "upper"] <- as.numeric(p$upper)
+  params.in[p$switch, "parscale"] <- diff(c(p$lower, p$upper))
 }
+
+# Add bounds penalty for upper/lower bounds
+actions <- c(actions, list(g3l_bounds_penalty(params.in)))
+model_code <- g3_to_tmb(actions)
 
 
 # Examples for running model ####################

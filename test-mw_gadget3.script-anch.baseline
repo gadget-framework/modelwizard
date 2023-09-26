@@ -30,7 +30,7 @@ actions_anch <- list(
   g3a_growmature(anch, g3a_grow_impl_bbinom(
     maxlengthgroupgrowth = 38L)),
   g3a_naturalmortality(anch),
-  g3a_initialconditions_normalparam(anch),
+  g3a_initialconditions_normalcv(anch),
   g3a_renewal_normalparam(anch,
     run_step = NULL),
   g3a_age(anch),

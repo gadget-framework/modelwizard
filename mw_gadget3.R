@@ -63,7 +63,7 @@ actions_${stock_sym} <- list(
   g3a_growmature(${stock_sym}, g3a_grow_impl_bbinom(
     maxlengthgroupgrowth = ${deparse1(as.integer((r$lg_max - r$lg_min) / r$lg_size))})),
   g3a_naturalmortality(${stock_sym}),
-  g3a_initialconditions_normalparam(${stock_sym}),
+  g3a_initialconditions_normalcv(${stock_sym}),
   g3a_renewal_normalparam(${stock_sym},
     run_step = ${deparse1(if (r$renewal_step == 0) NULL else r$renewal_step)}),
   g3a_age(${stock_sym}),

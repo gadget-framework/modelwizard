@@ -53,9 +53,7 @@ actions_comm <- list(
   g3a_predate_fleet(
     comm,
     list(ling),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("comm.alpha", by_stock = TRUE),
-        g3_parameterized("comm.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_comm", landings_comm, "weight", areas = area_names))),
   NULL)
@@ -84,9 +82,7 @@ actions_surv <- list(
   g3a_predate_fleet(
     surv,
     list(ling),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("surv.alpha", by_stock = TRUE),
-        g3_parameterized("surv.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_surv", landings_surv, "weight", areas = area_names))),
   NULL)

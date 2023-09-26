@@ -54,9 +54,7 @@ actions_seine <- list(
   g3a_predate_fleet(
     seine,
     list(anch),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("seine.alpha", by_stock = TRUE),
-        g3_parameterized("seine.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_seine", landings_seine, "number", areas = area_names))),
   NULL)
@@ -95,9 +93,7 @@ actions_ecocadiz <- list(
   g3a_predate_fleet(
     ecocadiz,
     list(anch),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("ecocadiz.alpha", by_stock = TRUE),
-        g3_parameterized("ecocadiz.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_ecocadiz", landings_ecocadiz, "weight", areas = area_names))),
   NULL)
@@ -136,9 +132,7 @@ actions_pelago <- list(
   g3a_predate_fleet(
     pelago,
     list(anch),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("pelago.alpha", by_stock = TRUE),
-        g3_parameterized("pelago.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_pelago", landings_pelago, "weight", areas = area_names))),
   NULL)

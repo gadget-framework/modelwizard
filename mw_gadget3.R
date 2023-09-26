@@ -118,9 +118,7 @@ actions_${fleet_sym} <- list(
   g3a_predate_fleet(
     ${fleet_sym},
     ${deparse1(stock_list, backtick = TRUE)},
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("${fleet_sym}.alpha", by_stock = TRUE),
-        g3_parameterized("${fleet_sym}.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata(${deparse1(data_name)}, ${data_sym}, ${deparse1(r$landings)}, areas = area_names))),
   NULL)

@@ -111,7 +111,7 @@ actions_likelihood_acoustic <- list(
     dist_acoustic,
     
     stocks = list(ling),
-    function_f = g3l_distribution_surveyindices_log(),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),

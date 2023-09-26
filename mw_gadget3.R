@@ -97,7 +97,7 @@ mw_g3_code_likelihood_dist <- function (dist_type, r, spec) {
     ${data_sym},
     ${if (!is_abundance) paste0("fleets = ", deparse1(fleet_list, backtick = TRUE), ",") else ""}
     stocks = ${deparse1(stock_list, backtick = TRUE)},
-    function_f = g3l_distribution_${if (is_abundance) "surveyindices_log" else "sumofsquares"}(),
+    function_f = ${if (is_abundance) "g3l_distribution_surveyindices_log(alpha = NULL, beta = 1)" else "g3l_distribution_sumofsquares()"},
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),)')}

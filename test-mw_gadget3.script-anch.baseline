@@ -178,7 +178,7 @@ actions_likelihood_si_ecocadiz <- list(
     dist_si_ecocadiz,
     
     stocks = list(anch),
-    function_f = g3l_distribution_surveyindices_log(),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),
@@ -199,7 +199,7 @@ actions_likelihood_si_pelago <- list(
     dist_si_pelago,
     
     stocks = list(anch),
-    function_f = g3l_distribution_surveyindices_log(),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),

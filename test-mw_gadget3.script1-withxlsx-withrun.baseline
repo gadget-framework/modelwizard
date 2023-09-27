@@ -31,7 +31,7 @@ actions_ling <- list(
   g3a_growmature(ling, g3a_grow_impl_bbinom(
     maxlengthgroupgrowth = 2L)),
   g3a_naturalmortality(ling),
-  g3a_initialconditions_normalparam(ling),
+  g3a_initialconditions_normalcv(ling),
   g3a_renewal_normalparam(ling,
     run_step = 1),
   g3a_age(ling),
@@ -54,9 +54,7 @@ actions_comm <- list(
   g3a_predate_fleet(
     comm,
     list(ling),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("comm.alpha", by_stock = TRUE),
-        g3_parameterized("comm.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_comm", landings_comm, "weight", areas = area_names))),
   NULL)
@@ -85,9 +83,7 @@ actions_surv <- list(
   g3a_predate_fleet(
     surv,
     list(ling),
-    suitabilities = g3_suitability_exponentiall50(
-        g3_parameterized("surv.alpha", by_stock = TRUE),
-        g3_parameterized("surv.l50", by_stock = TRUE)),
+    suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata("landings_surv", landings_surv, "weight", areas = area_names))),
   NULL)
@@ -118,7 +114,7 @@ actions_likelihood_acoustic <- list(
     dist_acoustic,
     
     stocks = list(ling),
-    function_f = g3l_distribution_surveyindices_log(),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),

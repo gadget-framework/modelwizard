@@ -53,6 +53,8 @@ actions <- c(actions, actions_time)
 
 mw_g3_code_stock <- function (r, spec, xlsx) {
     stock_sym <- escape_sym(r$name)
+    actions_sym <- escape_sym(paste("actions", r$name, sep = "_"))
+    actions_likelihood_sym <- escape_sym(paste("actions", "likelihood", r$name, sep = "_"))
     area_names <- spec$area$name
     template_str(r'(
 # Create stock definition for ${r$name} ####################
@@ -60,7 +62,7 @@ ${stock_sym} <- g3_stock(${deparse1(r$name)}, seq(${deparse1(r$lg_min)}, ${depar
   g3s_livesonareas(area_names[${deparse1(area_names)}]) |>
   g3s_age(${deparse1(as.integer(r$age_min))}, ${deparse1(as.integer(r$age_max))})
 
-actions_${stock_sym} <- list(
+${actions_sym} <- list(
   g3a_growmature(${stock_sym}, g3a_grow_impl_bbinom(
     maxlengthgroupgrowth = ${deparse1(as.integer((r$lg_max - r$lg_min) / r$lg_size))})),
   g3a_naturalmortality(${stock_sym}),
@@ -70,11 +72,11 @@ actions_${stock_sym} <- list(
   g3a_age(${stock_sym}),
   NULL)
 
-actions_likelihood_${stock_sym} <- list(
+${actions_likelihood_sym} <- list(
   g3l_understocking(list(${stock_sym}), weight = 1e+08, nll_breakdown = TRUE),
   NULL)
 
-actions <- c(actions, actions_${stock_sym}, actions_likelihood_${stock_sym})
+actions <- c(actions, ${actions_sym}, ${actions_likelihood_sym})
 )')}
 
 mw_g3_code_readxl_dist <- function (dist_type, r, xlsx) {
@@ -105,6 +107,8 @@ mw_g3_code_likelihood_dist <- function (dist_type, r, spec) {
 
 mw_g3_code_fleet <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
+    actions_sym <- escape_sym(paste("actions", r$name, sep = "_"))
+    actions_likelihood_sym <- escape_sym(paste("actions", "likelihood", r$name, sep = "_"))
     area_names <- spec$area$name
     stock_list <- lapply(spec$stock$name, as.symbol)
     data_name <- paste("landings", r$name, sep = "_")
@@ -115,7 +119,7 @@ mw_g3_code_fleet <- function (r, spec, xlsx) {
 ${fleet_sym} <- g3_fleet(${deparse1(r$name)}) |> g3s_livesonareas(area_names[${deparse1(area_names)}])
 
 ${mw_g3_code_readxl(data_name, xlsx)}${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
-actions_${fleet_sym} <- list(
+${actions_sym} <- list(
   g3a_predate_fleet(
     ${fleet_sym},
     ${deparse1(stock_list, backtick = TRUE)},
@@ -123,26 +127,28 @@ actions_${fleet_sym} <- list(
     catchability_f = g3a_predate_catchability_numberfleet(
       g3_timeareadata(${deparse1(data_name)}, ${data_sym}, ${deparse1(r$landings)}, areas = area_names))),
   NULL)
-actions_likelihood_${fleet_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
+${actions_likelihood_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
   NULL)
 
-actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
+actions <- c(actions, ${actions_sym}, ${actions_likelihood_sym})
 )')}
 
 mw_g3_code_abund <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
+    actions_sym <- escape_sym(paste("actions", r$name, sep = "_"))
+    actions_likelihood_sym <- escape_sym(paste("actions", "likelihood", r$name, sep = "_"))
     stock_list <- lapply(spec$stock$name, as.symbol)
 
     template_str(r'(
 # Create abundance index for ${r$name} ####################
 ${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
-actions_${fleet_sym} <- list(
+${actions_sym} <- list(
   NULL)
-actions_likelihood_${fleet_sym} <- list(
+${actions_likelihood_sym} <- list(
 ${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
   NULL)
 
-actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
+actions <- c(actions, ${actions_sym}, ${actions_likelihood_sym})
 )')}
 
 mw_g3_code_compile <- function (spec, xlsx) {

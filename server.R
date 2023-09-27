@@ -271,7 +271,7 @@ server <- function(input, output, session) {
 
     # Stocks ##################################################################
 
-    sect$stock <- reactiveSections(input, 'stock', function (genId) tagList(
+    sect$stock <- reactiveSections(input, 'stock', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Identifier")),
         p(class="help-block", T("An identifier to name the species within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
@@ -287,12 +287,12 @@ server <- function(input, output, session) {
         p(class="help-block", T("Age bins for your stock.")),
         hideIfOneTimestep(
             selectInput(genId('renewal_step'), T("Renewal at step"), timestepChoices(), selected = isolate(input[[genId('renewal_step')]]))),
-        hr()), default_count = 1, button_add = FALSE, button_remove = FALSE)
+        ""), default_count = 1, button_add = FALSE, button_remove = FALSE)
     output$stocks <- sect$stock$ui
 
     # Fleet / abundance indices ###############################################
 
-    sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
+    sect$fleet <- reactiveSections(input, 'fleet', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("identifier")),
         p(class="help-block", T("An identifier to name the fleet/survey within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
@@ -325,10 +325,10 @@ server <- function(input, output, session) {
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
         p(class="help-block", T("If age or age-length distribution data is available, select the relevant option and fill in the data in the next tab.")),
-        hr()))
+        ""))
     output$fleets <- sect$fleet$ui
 
-    sect$abund <- reactiveSections(input, 'abund', function (genId) tagList(
+    sect$abund <- reactiveSections(input, 'abund', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         p(class="help-block", T("An identifier to name the abundance index within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
@@ -361,7 +361,7 @@ server <- function(input, output, session) {
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
         p(class="help-block", T("Select which kinds of abudance distribution data are available and fill in the data in the next tab.")),
-        hr()))
+        ""))
     output$abund <- sect$abund$ui
 
     # Fleet data ##############################################################

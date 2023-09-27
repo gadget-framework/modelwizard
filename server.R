@@ -408,7 +408,9 @@ server <- function(input, output, session) {
         df_name <- paste0(df_inp_name, '_df')
 
         df <- isolate(input[[df_name]])
-        if (nrow(df) == 1 && all(is.na(df))) {
+        if (is.null(df)) {
+            # No data.frames, do nothing
+        } else if (nrow(df) == 1 && all(is.na(df))) {
             parts <- strsplit(df_inp_name, "_")[[1]]
             base_name <- paste(parts[[1]], parts[[2]], sep = "_")
             df_type <- parts[[3]]

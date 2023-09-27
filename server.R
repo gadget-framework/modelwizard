@@ -194,6 +194,9 @@ server <- function(input, output, session) {
         name_mapping <- list()
 
         # Pass 1: Set counts for sects
+        # NB: We don't just switch to be nice, we switch so we can render the UI for pass 2
+        shiny::updateTabsetPanel('nav_tabs', 'Specification', session = session)
+        session$sendCustomMessage("selectTab", "second_tab")
         for (n in names(sect)) {
             df <- as.data.frame(readxl::read_excel(file_path, n, na = c("", "NA")))
             sect[[n]]$count(0)

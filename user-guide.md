@@ -4,7 +4,8 @@
 
 At the very top of the page, you will see a set of tabs:
 
-* **Specification**: Here you can configure the overall model structure, as well as load & save to a spreadsheet
+* **Load / save**: Here you can load or save the model data to a spreadsheet
+* **Specification**: Here you can configure the overall model structure
 * **Data**: Here you can view fill in the data tables required by the structure
 * **Parameters**: Here you can view parameters the model will need, and set min/max/initial values
 * **Gadget3 script**: Here you can get an R script to build a [gadget3](https://gadget-framework.github.io/gadget3/) model using your specification & data

@@ -9,6 +9,7 @@ mw_g3_code_header <- function (spec, xlsx, compile = FALSE, run = FALSE) {
     libs <- c(
         'gadget3',
         (if (nzchar(xlsx)) 'readxl' else NULL),
+        (if (compile) "gadgetutils" else NULL),
         (if (run) "gadgetplots" else NULL),
         NULL)
     template_str(r'(

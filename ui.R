@@ -72,22 +72,6 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       uiOutput("all_data"),
       ""),
 
-  tabPanel(T("Parameters"), value = 'parameters',
-      h3(T("Model parameters")),
-      p(class="help-block", T("The model parameters below are based on what a gadget3 model would require. See the gadget3 documentation on what each option means at "), a(href="https://gadget-framework.github.io/gadget3", "https://gadget-framework.github.io/gadget3")),
-      verbatimTextOutput('parameters_error'),
-      hodfr::hodfr(
-          'params',
-          fields = list(
-              list(name="switch", title=T("Parameter name")),
-              list(name="value", title=T("Initial value"), content="numeric"),
-              list(name="optimise", title=T("Optimise Parameter?"), content="checkbox"),
-              list(name="lower", title=T("Lower bound"), content="numeric"),
-              list(name="upper", title=T("Upper bound"), content="numeric")),
-          values = list(type = "bins"),
-          orientation = 'horizontal', js_debug = FALSE),
-      ""),
-
   tabPanel(T("Gadget3 script"), value = 'script_g3',
       p(
         T("If you haven't already"),

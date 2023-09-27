@@ -124,7 +124,7 @@ data_init_value <- function (input, df_type, df_unit, base_name) {
     return(do.call(rev.expand.grid, df_values))
 }
 
-extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE) {
+extractDataFrames <- function (input, spec = TRUE, data = FALSE) {
     extractSingleDataFrame <- function (input, base_name) {
         out <- list()
         for (n in names(input)) {
@@ -172,10 +172,6 @@ extractDataFrames <- function (input, spec = TRUE, data = FALSE, params = FALSE)
                 sep = "_")
             out[[ws_name]] <- df
         }
-    }
-
-    if (params) {
-        out[['params']] <- input[['params']]
     }
 
     return(out)
@@ -244,11 +240,6 @@ server <- function(input, output, session) {
                     df_name <- paste(name_mapping[[m[[3]]]], m[[2]], 'df', sep = "_")
                     hodfr::updateHodfrInput(session, df_name, value = df)
                 }
-                if ('params' %in% sheet_names) {
-                    df <- as.data.frame(readxl::read_excel(file_path, 'params'), stringsAsFactors = FALSE)
-                    df$optimise <- df$optimise != 0
-                    hodfr::updateHodfrInput(session, 'params', value = df)
-                }
             })
         })
     }
@@ -262,19 +253,16 @@ server <- function(input, output, session) {
     output$file_save_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         writexl::write_xlsx(extractDataFrames(input,
             spec = TRUE,
-            params = TRUE,
             data = TRUE), path = file)
     })
     output$file_save_g3_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         writexl::write_xlsx(extractDataFrames(input,
             spec = TRUE,
-            params = TRUE,
             data = TRUE), path = file)
     })
     output$file_save_ss_act <- downloadHandler(filename = function() paste0(input$file_name, ".xlsx"), content = function(file) {
         writexl::write_xlsx(extractDataFrames(input,
             spec = TRUE,
-            params = TRUE,
             data = TRUE), path = file)
     })
 
@@ -435,46 +423,30 @@ server <- function(input, output, session) {
     # Always render data, so if we hit save without visiting the tab it's been computed
     outputOptions(output, "all_data", suspendWhenHidden = FALSE)
 
-    # Model parameters ########################################################
-    observeEvent(input$nav_tabs, if (input$nav_tabs == 'parameters') {
+    # Gadget3 script tab ######################################################
+    observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
         tryCatch({
-            model_env <- list2env(extractDataFrames(input, params = TRUE, data = TRUE), parent = asNamespace("gadget3"))
+            model_env <- list2env(extractDataFrames(input, data = TRUE), parent = asNamespace("gadget3"))
             model_env$script <- mw_g3_script(
                 spec = model_env,
                 compile = TRUE,
                 run = FALSE)
             saveRDS(model_env, file = '/tmp/model_env.rds')
             eval(parse(text = model_env$script), envir = model_env)
-            df <- model_env$params.in[,c('switch', 'value', 'optimise', 'lower', 'upper')]
-            df$value <- unlist(df$value)  # NB: HODF won't display list columns, we shouldn't have any parameter vectors
-            rownames(df) <- NULL  # NB: Without, HODF gets confused as to why our rownames don't match
 
-            if (!is.null(input$params)) {
-                existing_df <- input$params
-                df <- rbind(
-                    # Filter out old parameters from existing table
-                    existing_df[existing_df$switch %in% df$switch,],
-                    # Concatenate any new parameters
-                    df[!(df$switch %in% existing_df$switch),],
-                    make.row.names = FALSE)
-                df$optimise <- df$optimise != 0
-            }
-
-            hodfr::updateHodfrInput(session, 'params', value = df)
+            # Now we know the model is sane enough, display it
+            output$script_g3_text <- renderText(mw_g3_script(
+                spec = extractDataFrames(input, data = FALSE),
+                xlsx = paste0(input$file_name, ".xlsx"),
+                compile = TRUE,
+                run = TRUE))
         }, error = function(e) {
-            str(e)
-            output$parameters_error <- renderText(paste(e$message, deparse1(e$call), sep = "\n"))
-            hodfr::updateHodfrInput(session, 'params', value = data.frame(switch = c(), value = c(),optimise = c(),lower = c(),upper = c()))
+            output$script_g3_text <- renderText(paste(
+                "** Cannot create model **", "",
+                e$message,
+                deparse1(e$call),
+                sep = "\n"))
         })
-    })
-
-    # Gadget3 script tab ######################################################
-    observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
-        output$script_g3_text <- renderText(mw_g3_script(
-            spec = extractDataFrames(input, data = FALSE),
-            xlsx = paste0(input$file_name, ".xlsx"),
-            compile = TRUE,
-            run = TRUE))
     })
 
     # SS3 script tab ######################################################

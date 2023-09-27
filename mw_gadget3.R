@@ -239,6 +239,19 @@ mw_g3_script <- function (
         function (i) fn(as.list(tbl[i,, drop = FALSE]), ...),
         character(1))
 
+    # Check any supplied data
+    for (dat in setdiff(names(spec), c("abund", "area", "fleet", "stock", "time"))) {
+        if ('number' %in% names(spec[[dat]])) {
+            numcol <- spec[[dat]]$number
+        } else if ('weight' %in% names(spec[[dat]])) {
+            numcol <- spec[[dat]]$weight
+        } else {
+            next
+        }
+        numcol <- suppressWarnings(as.numeric(numcol))
+        if (!any(is.finite(numcol))) stop("Invalid / missing data for ", dat)
+    }
+
     paste(c(
         mw_g3_code_header(spec, xlsx, compile = compile, run = run),
         mw_g3_code_area(spec),

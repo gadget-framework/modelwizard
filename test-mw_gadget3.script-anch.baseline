@@ -56,7 +56,7 @@ actions_seine <- list(
     list(anch),
     suitabilities = g3_suitability_exponentiall50(),
     catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata("landings_seine", landings_seine, "number", areas = area_names))),
+      g3_timeareadata("landings_seine", landings_seine, "weight", areas = area_names))),
   NULL)
 actions_likelihood_seine <- list(
   g3l_catchdistribution(
@@ -160,6 +160,45 @@ actions_likelihood_pelago <- list(
 actions <- c(actions, actions_pelago, actions_likelihood_pelago)
 
 
+# Create fleet definition for ECOREC ####################
+ECOREC <- g3_fleet("ECOREC") |> g3s_livesonareas(area_names["IXa"])
+
+landings_ECOREC <- read_excel(data_path, "landings_ECOREC", na = c("", "NA"))
+ldist_ECOREC <- read_excel(data_path, "ldist_ECOREC", na = c("", "NA"))
+aldist_ECOREC <- read_excel(data_path, "aldist_ECOREC", na = c("", "NA"))
+
+actions_ECOREC <- list(
+  g3a_predate_fleet(
+    ECOREC,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_ECOREC", landings_ECOREC, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_ECOREC <- list(
+  g3l_catchdistribution(
+    "ldist_ECOREC",
+    ldist_ECOREC,
+    fleets = list(ECOREC),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_ECOREC",
+    aldist_ECOREC,
+    fleets = list(ECOREC),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_ECOREC, actions_likelihood_ECOREC)
+
+
 # Create abundance index for si_ecocadiz ####################
 dist_si_ecocadiz <- read_excel(data_path, "dist_si_ecocadiz", na = c("", "NA"))
 
@@ -200,6 +239,27 @@ actions_likelihood_si_pelago <- list(
   NULL)
 
 actions <- c(actions, actions_si_pelago, actions_likelihood_si_pelago)
+
+
+# Create abundance index for si_ECOREC ####################
+dist_si_ECOREC <- read_excel(data_path, "dist_si_ECOREC", na = c("", "NA"))
+
+actions_si_ECOREC <- list(
+  NULL)
+actions_likelihood_si_ECOREC <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_ECOREC",
+    dist_si_ECOREC,
+    
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_ECOREC, actions_likelihood_si_ECOREC)
 
 
 

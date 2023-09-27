@@ -86,7 +86,7 @@ inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 1,  # Fleet with input catches
     surveytiming = -1 * inputs$dat$months_per_seas,
     area = 1,  # Assume one area
-    units = 2,  # Numbers (thousands of fish)
+    units = 1,  # Biomass (metric tons)
     need_catch_mult = 0,
     fleetname = "seine",
     stringsAsFactors = FALSE))
@@ -130,7 +130,7 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = landings_seine$year,
     seas = landings_seine$step,
     fleet = "seine",  # NB: Use fleetnames for now, will renumber later
-    catch = landings_seine[["number"]],
+    catch = landings_seine[["weight"]],
     catch_se = 0.01,
     stringsAsFactors = TRUE))
 
@@ -190,7 +190,7 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "seine"),] <- list(
 # Create fleet definition for ecocadiz ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 1,  # Fleet with input catches
-    surveytiming = -1 * inputs$dat$months_per_seas,
+    surveytiming = 1 * inputs$dat$months_per_seas,
     area = 1,  # Assume one area
     units = 1,  # Biomass (metric tons)
     need_catch_mult = 0,
@@ -399,12 +399,118 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "pelago"),] <- list(
     Block = 0, Block_Fxn = 0)
 
 
+# Create fleet definition for ECOREC ####################
+inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
+    type = 1,  # Fleet with input catches
+    surveytiming = 2 * inputs$dat$months_per_seas,
+    area = 1,  # Assume one area
+    units = 1,  # Biomass (metric tons)
+    need_catch_mult = 0,
+    fleetname = "ECOREC",
+    stringsAsFactors = FALSE))
+
+inputs$dat$len_info["ECOREC",] <- list(
+    mintailcomp = 0,
+    addtocomp = 1e-7,
+    combine_M_F = 0,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 0.001)
+
+inputs$dat$age_info["ECOREC",] <- list(
+    mintailcomp = 0,
+    addtocomp = 1e-7,
+    combine_M_F = 1,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 0.001)
+
+inputs$dat$CPUEinfo["ECOREC",] <- list(
+    Fleet = "ECOREC",  # NB: Use fleetnames for now, will renumber later
+    Units = 0,
+    Errtype = 0,
+    SD_Report = 0)
+
+# Equilibrium catch fields
+inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
+    year = -999,
+    seas = seq_len(inputs$dat$nseas),
+    fleet = "ECOREC",  # NB: Use fleetnames for now, will renumber later
+    catch = 0,
+    catch_se = 0.01,
+    stringsAsFactors = TRUE))
+
+landings_ECOREC <- readxl::read_excel(data_path, "landings_ECOREC", na = c("", "NA"))
+
+inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
+    year = landings_ECOREC$year,
+    seas = landings_ECOREC$step,
+    fleet = "ECOREC",  # NB: Use fleetnames for now, will renumber later
+    catch = landings_ECOREC[["weight"]],
+    catch_se = 0.01,
+    stringsAsFactors = TRUE))
+
+inputs$ctl$size_selex_types["ECOREC",] <- list(
+    Pattern = 1,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ECOREC"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ECOREC"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+inputs$ctl$age_selex_types["ECOREC",] <- list(
+    Pattern = 11,
+    Discard = 0,
+    Male = 0,
+    Special = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", "ECOREC"),] <- list(
+    LO = -2,
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "ECOREC"),] <- list(
+    LO = -1,
+    HI = 5.5,
+    INIT = 5,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+
 # Create abundance index for si_ecocadiz ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 3,
-    surveytiming = -1 * inputs$dat$months_per_seas,
+    surveytiming = 1 * inputs$dat$months_per_seas,
     area = 1,  # Assume one area
-    units = 2,  # Numbers (thousands of fish)
+    units = 1,  # Biomass (metric tons)
     need_catch_mult = 0,
     fleetname = "si_ecocadiz"))
 
@@ -428,7 +534,7 @@ inputs$dat$age_info["si_ecocadiz",] <- list(
 
 inputs$dat$CPUEinfo["si_ecocadiz",] <- list(
     Fleet = "si_ecocadiz",  # NB: Use fleetnames for now, will renumber later
-    Units = 0,  # Numbers (thousands of fish)
+    Units = 1,  # Biomass (metric tons)
     Errtype = 0,
     SD_Report = 0)
 
@@ -438,7 +544,7 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     year = dist_si_ecocadiz$year,
     seas = dist_si_ecocadiz$step,
     index = "si_ecocadiz",  # NB: Use fleetnames for now, will renumber later
-    obs = dist_si_ecocadiz[["number"]],  # TODO: Do we need to scale if numbers?
+    obs = dist_si_ecocadiz[["weight"]],  # TODO: Do we need to scale if numbers?
     se_log = 0.3,
     stringsAsFactors = TRUE))
 
@@ -474,9 +580,9 @@ inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_ecocadiz"),] <- list(
 # Create abundance index for si_pelago ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 3,
-    surveytiming = -1 * inputs$dat$months_per_seas,
+    surveytiming = 0 * inputs$dat$months_per_seas,
     area = 1,  # Assume one area
-    units = 2,  # Numbers (thousands of fish)
+    units = 1,  # Biomass (metric tons)
     need_catch_mult = 0,
     fleetname = "si_pelago"))
 
@@ -500,7 +606,7 @@ inputs$dat$age_info["si_pelago",] <- list(
 
 inputs$dat$CPUEinfo["si_pelago",] <- list(
     Fleet = "si_pelago",  # NB: Use fleetnames for now, will renumber later
-    Units = 0,  # Numbers (thousands of fish)
+    Units = 1,  # Biomass (metric tons)
     Errtype = 0,
     SD_Report = 0)
 
@@ -510,7 +616,7 @@ inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
     year = dist_si_pelago$year,
     seas = dist_si_pelago$step,
     index = "si_pelago",  # NB: Use fleetnames for now, will renumber later
-    obs = dist_si_pelago[["number"]],  # TODO: Do we need to scale if numbers?
+    obs = dist_si_pelago[["weight"]],  # TODO: Do we need to scale if numbers?
     se_log = 0.3,
     stringsAsFactors = TRUE))
 
@@ -532,6 +638,78 @@ inputs$ctl$Q_parms[paste0("LnQ_base_", "si_pelago"),] <- list(
     dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
     Block = 0, Block_Fxn = 0)
 inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_pelago"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+
+
+# Create abundance index for si_ECOREC ####################
+inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
+    type = 3,
+    surveytiming = 2 * inputs$dat$months_per_seas,
+    area = 1,  # Assume one area
+    units = 1,  # Biomass (metric tons)
+    need_catch_mult = 0,
+    fleetname = "si_ECOREC"))
+
+inputs$dat$len_info["si_ECOREC",] <- list(
+    mintailcomp = 0,
+    addtocomp = 1e-7,
+    combine_M_F = 0,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 0.001)
+
+inputs$dat$age_info["si_ECOREC",] <- list(
+    mintailcomp = 0,
+    addtocomp = 1e-7,
+    combine_M_F = 1,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 0.001)
+
+inputs$dat$CPUEinfo["si_ECOREC",] <- list(
+    Fleet = "si_ECOREC",  # NB: Use fleetnames for now, will renumber later
+    Units = 1,  # Biomass (metric tons)
+    Errtype = 0,
+    SD_Report = 0)
+
+dist_si_ECOREC <- readxl::read_excel(data_path, "dist_si_ECOREC", na = c("", "NA"))
+
+inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
+    year = dist_si_ECOREC$year,
+    seas = dist_si_ECOREC$step,
+    index = "si_ECOREC",  # NB: Use fleetnames for now, will renumber later
+    obs = dist_si_ECOREC[["weight"]],  # TODO: Do we need to scale if numbers?
+    se_log = 0.3,
+    stringsAsFactors = TRUE))
+
+inputs$ctl$Q_options <- rbind(inputs$ctl$Q_options, data.frame(
+    fleet = "si_ECOREC",  # NB: Use fleetnames for now, will renumber later
+    link = 1,
+    link_info = 0,
+    extra_se = 0,
+    biasadj = 0,
+    float = 0))
+inputs$ctl$Q_parms[paste0("LnQ_base_", "si_ECOREC"),] <- list(
+    LO = 0,  # TODO: Find relevant params
+    HI = 5.5,
+    INIT = 0.1,
+    PRIOR = 0,
+    PR_SD = 0.01, PR_type = 0,
+    PHASE = 0,
+    "env_var&link:" = 0,
+    dev_link = 0, dev_minyr = 0, dev_maxyr = 0, dev_PH = 0,
+    Block = 0, Block_Fxn = 0)
+inputs$ctl$Q_parms[paste0("Q_extraSD_", "si_ECOREC"),] <- list(
     LO = 0,  # TODO: Find relevant params
     HI = 5.5,
     INIT = 0.1,
@@ -663,6 +841,47 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     stringsAsFactors = TRUE), ldist_pelago[,lvls_map]))
 
 
+# Create length distribution for ECOREC ####################
+
+ldist_ECOREC <- readxl::read_excel(data_path, "ldist_ECOREC", na = c("", "NA"))
+
+
+if (nrow(inputs$dat$lencomp) == 0) {
+    # Seed lencomp with columns based on lbin_vector
+    cols <- paste0("L", inputs$dat$lbin_vector)
+    cols <- structure(as.list(rep(0, length(cols))), names = cols)
+    inputs$dat$lencomp <- as.data.frame(c(list(
+        Yr = 1999,
+        Seas = 1,
+        FltSvy = "",
+        Gender = 0,
+        Part = 0,
+        NSamp = 100), cols))[c(),]
+}
+
+# Convert lengths into SS-compatible names
+ldist_ECOREC$length <- as.factor(ldist_ECOREC$length)
+lvls <- parse_levels(levels(ldist_ECOREC$length))
+lvls_map <- structure(paste0("L", lvls$lower_bound), names = lvls$names)
+levels(ldist_ECOREC$length) <- lvls_map[levels(ldist_ECOREC$length)]
+
+# Rotate length groupings, renaming to SS labels
+ldist_ECOREC <- reshape2::dcast(
+    ldist_ECOREC,
+    year + step + area ~ length,
+    value.var = "number")
+
+inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
+    Yr = ldist_ECOREC$year,
+    Seas = ldist_ECOREC$step,
+    FltSvy = "ECOREC",  # NB: Use fleetnames for now, will renumber later
+    Gender = 0,
+    Part = 0,
+    NSamp = 100,
+    stringsAsFactors = TRUE), ldist_ECOREC[,lvls_map]))
+
+
+
 
 
 # Create age-length distribution for seine ####################
@@ -677,17 +896,18 @@ inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
 # TODO: Not supported yet
 
 
+# Create age-length distribution for ECOREC ####################
+# TODO: Not supported yet
 
 
-# Set params from table ####################
-params <- readxl::read_excel(data_path, "params", na = c("", "NA"))
 
 
-param_re <- "VonBert_K"
-inp_name <- "anch.K"
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "INIT"] <- params[params$switch == inp_name, "value"]
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "LO"] <- params[params$switch == inp_name, "lower"]
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "HI"] <- params[params$switch == inp_name, "upper"]
+
+# Set params ###############################
+
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "INIT"] <- 0.3
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "LO"] <- 0.04
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "HI"] <- 1.2
 
 
 

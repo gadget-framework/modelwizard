@@ -19,6 +19,8 @@ xlsx_to_spec <- function (xlsx_path = 'anch.xlsx') {
 }
 
 code <- mw_ss_script(xlsx_to_spec("anch.xlsx"), xlsx = "anch.xlsx")
-#ok_baseline('script-anch', code)
+ok_baseline('script-anch', code)
+if (!interactive()) options(warn=0)  # NB: ECOREC contains an all-zero line, generating a warning
 eval(parse(text = code))
+if (!interactive()) options(warn=2)
 i2 <- r4ss::SS_read(dir = mod_path)

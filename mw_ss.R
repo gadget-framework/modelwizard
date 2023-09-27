@@ -373,14 +373,11 @@ mw_ss_code_params <- function (r, spec, xlsx) {
     stock_name <- spec$stock$name
 
     template_str(r'(
-# Set params from table ####################
-${mw_ss_code_readxl("params", xlsx)}
+# Set params ###############################
 
-param_re <- "VonBert_K"
-inp_name <- ${deparse1(paste0(stock_name, ".K"))}
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "INIT"] <- params[params$switch == inp_name, "value"]
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "LO"] <- params[params$switch == inp_name, "lower"]
-inputs$ctl$MG_parms[grepl(param_re, rownames(inputs$ctl$MG_parms)), "HI"] <- params[params$switch == inp_name, "upper"]
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "INIT"] <- 0.3
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "LO"] <- 0.04
+inputs$ctl$MG_parms[grepl("VonBert_K", rownames(inputs$ctl$MG_parms)), "HI"] <- 1.2
 
 )')}
 

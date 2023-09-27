@@ -145,20 +145,32 @@ actions <- c(actions, actions_${fleet_sym}, actions_likelihood_${fleet_sym})
 )')}
 
 mw_g3_code_compile <- function (spec, xlsx) {
+    stock_list <- lapply(spec$stock$name, as.symbol)
     template_str(r'(
 # Create model objective function ####################
 
 model_code <- g3_to_tmb(actions)
-params.in <- attr(model_code, "parameter_template")
 
-if (nzchar(data_path)) {
-  p <- readxl::read_excel(data_path, "params", na = c("", "NA"))
-  params.in[p$switch, "value"] <- p$value
-  params.in[p$switch, "optimise"] <- p$optimise != 0
-  params.in[p$switch, "lower"] <- as.numeric(p$lower)
-  params.in[p$switch, "upper"] <- as.numeric(p$upper)
-  params.in[p$switch, "parscale"] <- diff(c(p$lower, p$upper))
-}
+# Guess l50 / linf based on stock sizes
+estimate_l50 <- gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")[[length(gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")) / 2]]
+estimate_linf <- max(gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen"))
+
+params.in <- attr(model_code, "parameter_template") |>
+  gadgetutils::g3_init_guess("\\.(rec|init)\\.scalar$", 10, 0.001, 200, 1) |>
+  gadgetutils::g3_init_guess("\\.init\\.[0-9]+$", 10, 0.001, 200, 1) |>
+  gadgetutils::g3_init_guess("\\.rec\\.[0-9]+$", 100, 1e-6, 1000, 1) |>
+  gadgetutils::g3_init_guess("\\.rec.sd$", 5, 4, 20, 1) |>
+  gadgetutils::g3_init_guess("\\.M$", 0.15, 0.001, 1, 1) |>
+  gadgetutils::g3_init_guess("^init\\.F$", 0.5, 0.1, 1, 1) |>
+  gadgetutils::g3_init_guess("\\.Linf$", estimate_linf, estimate_linf * (1 - 0.2), estimate_linf * (1 + 0.2), 1) |>
+  gadgetutils::g3_init_guess("\\.K$", 0.3, 0.04, 1.2, 1) |>
+  gadgetutils::g3_init_guess("\\.t0$", 2, -1, 5, 1) |>
+  gadgetutils::g3_init_guess("\\.walpha$", 0.01) |>
+  gadgetutils::g3_init_guess("\\.wbeta$", 3) |>
+  gadgetutils::g3_init_guess("^\\w+\\.\\w+\\.alpha$", 0.07, 0.01, 0.2, 1) |>
+  gadgetutils::g3_init_guess("^\\w+\\.\\w+\\.l50$", estimate_l50, estimate_l50 * (1 - 0.25), estimate_l50 * (1 + 0.25), 1) |>
+  gadgetutils::g3_init_guess("\\.bbin$", 100, 1e-05, 1000, 1) |>
+  identity()
 
 # Add bounds penalty for upper/lower bounds
 actions <- c(actions, list(g3l_bounds_penalty(params.in)))

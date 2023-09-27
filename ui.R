@@ -60,7 +60,7 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       h3(T("Stock")),
       uiOutput("stocks"),
 
-      h3(T("Fleets")),
+      h3(T("Commercial & survey fleets")),
       uiOutput("fleets"),
       hr(),
 

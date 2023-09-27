@@ -293,8 +293,8 @@ server <- function(input, output, session) {
     # Fleet / abundance indices ###############################################
 
     sect$fleet <- reactiveSections(input, 'fleet', function (genId) tagList(
-        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Fleet identifier")),
-        p(class="help-block", T("An identifier to name the fleet within the model. Letters, numbers and underscore are allowed.")),
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("identifier")),
+        p(class="help-block", T("An identifier to name the fleet/survey within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('year_min'), isolate(coalesce(
                 input[[genId('year_min')]],

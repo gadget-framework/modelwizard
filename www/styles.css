@@ -2,3 +2,9 @@
 .modal-xl {
   width: 99%;
 }
+
+/* Assume all textareas are code textareas, so should be monospace */
+textarea.shiny-input-textarea {
+  font-family: Menlo,Monaco,Consolas,"Courier New",monospace;
+  font-size: 1rem;
+}

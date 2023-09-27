@@ -24,7 +24,17 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       href="https://github.com/gadget-framework/modelwizard",
       class="navbar-brand",
       style="position: absolute; top: 0; right: 0")),
-  header = tag('link', list(href="styles.css", rel="stylesheet")),
+  header = tagList(
+    # https://stackoverflow.com/a/58585251
+    tags$script("Shiny.addCustomMessageHandler('select_textarea', function(inputId) {
+      $('#' + inputId).prop('spellcheck', false);  // It's code, no need to spellcheck
+      $('#' + inputId).focus();
+      // Wait for content to populate before selecting
+      window.setTimeout(function () {
+        $('#' + inputId).select();
+      }, 100);
+    });"),
+    tag('link', list(href="styles.css", rel="stylesheet"))),
 
   tabPanel(T("Load / save"),
       div(class="row",
@@ -87,16 +97,17 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
         downloadLink("file_save_g3_act", T("download your data as a spreadsheet")),
         T("then copy and paste the script below:"),
         ""),
-      verbatimTextOutput('script_g3_text'),
+      textAreaInput('script_g3_text', value = T("Loading..."), label = T("Code"), width = "100%", height = "80rem"),
       ""),
 
   tabPanel(T("SS3/r4ss script"), value = 'script_ss',
+    div(class="container",
       p(
         T("If you haven't already"),
         downloadLink("file_save_ss_act", T("download your data as a spreadsheet")),
         T("then copy and paste the script below:"),
         ""),
-      verbatimTextOutput('script_ss_text'),
+      textAreaInput('script_ss_text', value = T("Loading..."), label = T("Code"), width = "100%", height = "80rem"),
       ""),
 
   footer = includeHTML(branding_footer))

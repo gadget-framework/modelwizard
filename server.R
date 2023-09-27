@@ -438,24 +438,30 @@ server <- function(input, output, session) {
             eval(parse(text = model_env$script), envir = model_env)
 
             # Now we know the model is sane enough, display it
-            output$script_g3_text <- renderText(mw_g3_script(
+            updateTextAreaInput(session = session, inputId = 'script_g3_text', value = mw_g3_script(
                 spec = extractDataFrames(input, data = FALSE),
                 xlsx = paste0(input$file_name, ".xlsx"),
                 compile = TRUE,
                 run = TRUE))
+            session$sendCustomMessage("select_textarea", "script_g3_text")
         }, error = function(e) {
-            output$script_g3_text <- renderText(paste(
+            updateTextAreaInput(session = session, inputId = 'script_g3_text', value = paste(
                 "** Cannot create model **", "",
                 e$message,
                 deparse1(e$call),
                 sep = "\n"))
         })
+    } else {
+        updateTextAreaInput(session = session, inputId = 'script_g3_text', value = T("Loading..."))
     })
 
     # SS3 script tab ######################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_ss') {
-        output$script_ss_text <- renderText(mw_ss_script(
+        updateTextAreaInput(session = session, inputId = 'script_ss_text', value = mw_ss_script(
             spec = extractDataFrames(input, data = FALSE),
             xlsx = paste0(input$file_name, ".xlsx")))
+            session$sendCustomMessage("select_textarea", "script_ss_text")
+    } else {
+        updateTextAreaInput(session = session, inputId = 'script_ss_text', value = T("Loading..."))
     })
 }

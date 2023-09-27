@@ -166,6 +166,20 @@ model_code <- g3_to_tmb(actions)
 )')}
 
 mw_g3_code_run <- function (spec) {
+    comp_names <- function (tbl) {
+        unname(unlist(lapply(seq_len(nrow(tbl)), function (i) {
+            r <- as.list(tbl[i,])
+            out <- vapply(c('dist', 'ldist', 'aldist'), function (dist_type) {
+                if (!(dist_type %in% names(r))) return("")
+                if (r[[dist_type]] == "none") return("")
+                return(paste(dist_type, r$name, sep = "_"))
+            }, character(1))
+            out[nzchar(out)]
+        })))
+    }
+    fleet_lcomp <- comp_names(spec$fleet)
+    abund_lcomp <- comp_names(spec$abund)
+
 grouping <- list(fleet = spec$fleet$name, abund = spec$abund$name)
     template_str(r'(
 # Examples for running model ####################
@@ -175,7 +189,9 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     wgts = "WGTS",
     model = model_code,
     params.in = params.in,
-    grouping = ${deparse1(grouping)},
+    grouping = list(
+        fleet = ${deparse1(fleet_lcomp)},
+        abund = ${deparse1(abund_lcomp)}),
     method = "BFGS",
     control = list(maxit = 100, reltol = 1e-10),
     use_parscale = TRUE,

@@ -24,6 +24,24 @@ coalesce <- function (...) {
     stop("coalesce doesn't support more than 5 arguments")
 }
 
+cut.alphanumeric <- function (x, breaks, right = TRUE, ...) {
+    # Find max total precision & decimal places formatC uses
+    width <- max(nchar(formatC(floor(breaks[is.finite(breaks)]))))
+    dp <- max(0, max(nchar(formatC(breaks[is.finite(breaks)] %% 1))) - 2)
+    if (dp > 0) width <- width + 1 + dp
+    # Format based on width/dp
+    ch.br <- sprintf(paste0("%0", width, ".", dp, "f"), breaks)
+    if (isTRUE(right)) {
+        labels <- paste0('(', head(ch.br, -1), ',', tail(ch.br, -1), ']')
+    } else {
+        labels <- paste0('[', head(ch.br, -1), ',', tail(ch.br, -1), ')')
+    }
+    cut(x, breaks, labels = labels, right = right, ...)
+}
+#levels(cut.alphanumeric(0, c(seq(0, 20, 5), Inf)))
+#levels(cut.alphanumeric(0, c(seq(8, 11, 0.05), Inf)))
+#levels(cut.alphanumeric(0, seq(3, 22, 0.5)))
+
 # Wait for renderUI blocks to do their thing, then carry on
 # https://github.com/rstudio/shiny/issues/3348#issuecomment-810727477
 executeAtNextInput <- function(session = getDefaultReactiveDomain(), values = reactiveValuesToList(session$input), expr) {
@@ -116,7 +134,7 @@ data_init_value <- function (input, df_type, df_unit, base_name) {
             input[[genStockId('lg_max')]],
             input[[genStockId('lg_size')]])))) return(NULL)
         df_values <- c(df_values, list(
-            length = levels(cut(0, c(seq(
+            length = levels(cut.alphanumeric(0, c(seq(
                 input[[genStockId('lg_min')]],
                 input[[genStockId('lg_max')]],
                 input[[genStockId('lg_size')]]), Inf), right = FALSE))))

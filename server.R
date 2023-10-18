@@ -289,7 +289,7 @@ server <- function(input, output, session) {
 
     # Stocks ##################################################################
 
-    sect$stock <- reactiveSections(input, 'stock', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
+    sect$stock <- reactiveSections(input, 'stock', function (genId) div(class="panel panel-default panel-body",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Identifier")),
         p(class="help-block", T("An identifier to name the species within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
@@ -310,7 +310,7 @@ server <- function(input, output, session) {
 
     # Fleet / abundance indices ###############################################
 
-    sect$fleet <- reactiveSections(input, 'fleet', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
+    sect$fleet <- reactiveSections(input, 'fleet', function (genId) div(class="panel panel-default panel-body",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("identifier")),
         p(class="help-block", T("An identifier to name the fleet/survey within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
@@ -346,7 +346,7 @@ server <- function(input, output, session) {
         ""))
     output$fleets <- sect$fleet$ui
 
-    sect$abund <- reactiveSections(input, 'abund', function (genId) div(class="panel panel-default panel-body", style="background: rgb(3 77 162 / 10%);",
+    sect$abund <- reactiveSections(input, 'abund', function (genId) div(class="panel panel-default panel-body",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
         p(class="help-block", T("An identifier to name the abundance index within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",

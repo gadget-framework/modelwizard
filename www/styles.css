@@ -1,3 +1,7 @@
+.panel-default {
+  background: rgb(3 77 162 / 10%);
+}
+
 /* shiny::modalDialog specifies xl as a size option, but has no corresponding CSS  */
 .modal-xl {
   width: 99%;

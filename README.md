@@ -22,6 +22,12 @@ Rscript install-deps.R
 
 To run the app, 
 
+The user-guide content needs pregenerating with:
+
+```
+Rscript pregenerate.R
+```
+
 ## Branding
 
 Symlink (or create a new) ``branding.R``, e.g:

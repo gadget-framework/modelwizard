@@ -454,10 +454,14 @@ server <- function(input, output, session) {
                 spec = model_env,
                 compile = TRUE,
                 run = FALSE)
-            saveRDS(model_env, file = '/tmp/model_env.rds')
             eval(parse(text = model_env$script), envir = model_env)
 
             # Now we know the model is sane enough, display it
+            model_env$script <- mw_g3_script(
+                spec = model_env,
+                xlsx = paste0(input$file_name, ".xlsx"),
+                compile = TRUE,
+                run = TRUE)
             updateTextAreaInput(session = session, inputId = 'script_g3_text', value = model_env$script)
             session$sendCustomMessage("select_textarea", "script_g3_text")
         }, error = function(e) {

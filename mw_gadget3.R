@@ -202,7 +202,7 @@ mw_g3_code_run <- function (spec) {
 
 grouping <- list(fleet = spec$fleet$name, abund = spec$abund$name)
     template_str(r'(
-# Examples for running model ####################
+# Optimise model ################################
 obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
 
 params.out <- gadgetutils::g3_iterative(getwd(),
@@ -219,11 +219,10 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     cv_floor = 0.05,
     resume_final = FALSE)
 
+# Generate detailed report ######################
 fit <- gadgetutils::g3_fit(model_code, params.out)
-gadgetplots::plot_annual(fit)
-gadgetplots::plot_biomass(fit, total = TRUE)
-gadgetplots::plot_ldist(fit)
-# gadgetplots::gadget_plots(fit, "figs", file_type = "html")
+gadgetplots::gadget_plots(fit, "figs", file_type = "html")
+utils::browseURL("figs/model_output_figures.html")
 )')}
 
 mw_g3_script <- function (

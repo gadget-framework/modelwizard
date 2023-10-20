@@ -53,9 +53,21 @@ T <- function (s) s
 
 # Populate a uiOutput section with an array of fields
 reactiveSections <- function (input, val_name, ui_func, default_count = 0, button_add = TRUE, button_remove = TRUE) {
+    button_remove <- FALSE  # TODO: See event
     rv <- reactiveVal(default_count, paste0(val_name, ' count'))
     observeEvent(input[[paste0(val_name, '_add_act')]], { rv(rv() + 1) })
-    observeEvent(input[[paste0(val_name, '_remove_act')]], { rv(max(0, rv() - 1)) })
+    observeEvent(input[[paste0(val_name, '_remove_act')]], {
+      old_idx <- rv()
+      rv(max(0, rv() - 1))
+      # TODO: Shiny doesn't tidy up input reactives when their clientside counterparts go away
+      # https://github.com/rstudio/shiny/issues/2439
+      # The below workaround sorta-works, but there needs to be more logic for data
+      if (old_idx > 0) for (n in isolate(names(input))) {
+        if (startsWith(n, sprintf('%s_%d_', val_name, old_idx))) {
+          .subset2(input, "impl")$.values$remove(n)
+        }
+      }
+    })
     return(list(count = rv, ui = renderUI(do.call(tagList, c(
         lapply(seq_len(rv()), function (i) {
             genId <- function (s) sprintf('%s_%d_%s', val_name, i, s)
@@ -73,7 +85,7 @@ data_init_cols <- function (input, df_type, df_unit, base_name) {
     genStockId <- function (...) paste(c('stock_1', ...), collapse = "_")
 
     df_names <- c("year", "step", "area")
-    if (df_unit == 'none') return(NULL)
+    if (length(df_unit) == 0 || df_unit == 'none') return(NULL)
 
     if (df_type == 'adist' || df_type == 'aldist') {
         if (any(!is.finite(c(

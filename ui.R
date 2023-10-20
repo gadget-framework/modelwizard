@@ -84,10 +84,12 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       hr(),
 
       h3(T("Commercial & survey fleets")),
+      p(class="help-block", T("At least one fleet with numeric age-length distribution data is required for g3.fit reporting to work")),
       uiOutput("fleets"),
       hr(),
 
       h3(T("Abundance indices")),
+      p(class="help-block", T("At least one abundance index is required for g3.fit reporting to work")),
       uiOutput("abund"),
       hr(),
       "")),

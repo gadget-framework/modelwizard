@@ -461,14 +461,7 @@ server <- function(input, output, session) {
     # Gadget3 script tab ######################################################
     observeEvent(input$nav_tabs, if (input$nav_tabs == 'script_g3') {
         tryCatch({
-            model_env <- list2env(extractDataFrames(input, data = TRUE), parent = asNamespace("gadget3"))
-            model_env$script <- mw_g3_script(
-                spec = model_env,
-                compile = TRUE,
-                run = FALSE)
-            eval(parse(text = model_env$script), envir = model_env)
-
-            # Now we know the model is sane enough, display it
+            model_env <- list2env(extractDataFrames(input, data = FALSE), parent = asNamespace("gadget3"))
             model_env$script <- mw_g3_script(
                 spec = model_env,
                 xlsx = paste0(input$file_name, ".xlsx"),

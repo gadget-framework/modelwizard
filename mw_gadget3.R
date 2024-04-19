@@ -162,7 +162,7 @@ model_code <- g3_to_tmb(actions)
 # Guess l50 / linf based on stock sizes
 estimate_l50 <- gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")[[length(gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")) / 2]]
 estimate_linf <- max(gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen"))
-estimate_t0 <- gadget3::g3_stock_def(st, "minage") - 0.8
+estimate_t0 <- gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "minage") - 0.8
 
 params.in <- attr(model_code, "parameter_template") |>
   gadgetutils::g3_init_guess("\\.(rec|init)\\.scalar$", 10, 0.001, 200, 1) |>

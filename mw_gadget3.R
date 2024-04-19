@@ -157,7 +157,12 @@ mw_g3_code_compile <- function (spec, xlsx) {
     template_str(r'(
 # Create model objective function ####################
 
-model_code <- g3_to_tmb(actions)
+# Turn model into C++ code
+model_code <- g3_to_tmb(c(actions, list(
+    # Include detailed reporting for all actions
+    g3a_report_detail(actions),
+    # Add lower/upper bounds from parameters to output likelihood
+    g3l_bounds_penalty(actions) )))
 
 # Guess l50 / linf based on stock sizes
 estimate_l50 <- gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")[[length(gadget3::g3_stock_def(${deparse1(stock_list[[1]], backtick = TRUE)}, "midlen")) / 2]]
@@ -180,10 +185,6 @@ params.in <- attr(model_code, "parameter_template") |>
   gadgetutils::g3_init_guess("^\\w+\\.\\w+\\.l50$", estimate_l50, estimate_l50 * (1 - 0.25), estimate_l50 * (1 + 0.25), 1) |>
   gadgetutils::g3_init_guess("\\.bbin$", 100, 1e-05, 1000, 1) |>
   identity()
-
-# Add bounds penalty for upper/lower bounds
-actions <- c(actions, list(g3l_bounds_penalty(params.in)))
-model_code <- g3_to_tmb(actions)
 )')}
 
 mw_g3_code_run <- function (spec) {

@@ -151,6 +151,13 @@ data_init_value <- function (input, df_type, df_unit, base_name) {
                 input[[genStockId('lg_max')]],
                 input[[genStockId('lg_size')]]), Inf), right = FALSE))))
     }
+
+    if (identical(df_unit, 'weight')) {
+        df_values[['weight']] <- NA
+    } else {
+        df_values[['number']] <- NA
+    }
+
     return(do.call(rev.expand.grid, df_values))
 }
 

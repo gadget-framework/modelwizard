@@ -57,7 +57,7 @@ actions_seine <- list(
     seine,
     list(anch),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
+    catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_seine", landings_seine, "weight", areas = area_names))),
   NULL)
 actions_likelihood_seine <- list(
@@ -96,7 +96,7 @@ actions_ecocadiz <- list(
     ecocadiz,
     list(anch),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
+    catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_ecocadiz", landings_ecocadiz, "weight", areas = area_names))),
   NULL)
 actions_likelihood_ecocadiz <- list(
@@ -135,7 +135,7 @@ actions_pelago <- list(
     pelago,
     list(anch),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
+    catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_pelago", landings_pelago, "weight", areas = area_names))),
   NULL)
 actions_likelihood_pelago <- list(
@@ -174,7 +174,7 @@ actions_ECOREC <- list(
     ECOREC,
     list(anch),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
+    catchability_f = g3a_predate_catchability_totalfleet(
       g3_timeareadata("landings_ECOREC", landings_ECOREC, "weight", areas = area_names))),
   NULL)
 actions_likelihood_ECOREC <- list(

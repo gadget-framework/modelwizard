@@ -114,6 +114,7 @@ mw_g3_code_fleet <- function (r, spec, xlsx) {
     stock_list <- lapply(spec$stock$name, as.symbol)
     data_name <- paste("landings", r$name, sep = "_")
     data_sym <- escape_sym(data_name)
+    catchability_fn <- if (identical(r$landings, "weight")) "g3a_predate_catchability_totalfleet" else "g3a_predate_catchability_numberfleet"
 
     template_str(r'(
 # Create fleet definition for ${r$name} ####################
@@ -125,7 +126,7 @@ ${actions_sym} <- list(
     ${fleet_sym},
     ${deparse1(stock_list, backtick = TRUE)},
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
+    catchability_f = ${catchability_fn}(
       g3_timeareadata(${deparse1(data_name)}, ${data_sym}, ${deparse1(r$landings)}, areas = area_names))),
   NULL)
 ${actions_likelihood_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}

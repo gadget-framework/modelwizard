@@ -108,4 +108,3 @@ code <- mw_g3_script(list(
         dist = c("weight"),
         stringsAsFactors = FALSE)), xlsx = "moo.xlsx", compile = TRUE, run = TRUE)
 ok_baseline('script1-withxlsx-withrun', code)
-# TODO: Parse the anch.xlsx and run

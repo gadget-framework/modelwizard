@@ -1,0 +1,338 @@
+
+library(gadget3)
+library(readxl)
+library(gadgetutils)
+library(gadgetplots)
+
+actions <- list()
+data_path <- "anch.xlsx"
+
+
+# Create area definitions ####################
+area_names <- c(IXa = 1L)
+
+
+# Create time definitions ####################
+
+actions_time <- list(
+  g3a_time(
+    1979L, 2023L,
+    step_lengths = c(3L, 3L, 3L, 3L)),
+  NULL)
+
+actions <- c(actions, actions_time)
+
+
+# Create stock definition for anch ####################
+anch <- g3_stock("anch", seq(3, 22, 0.5)) |>
+  g3s_livesonareas(area_names["IXa"]) |>
+  g3s_age(0L, 3L)
+
+actions_anch <- list(
+  g3a_growmature(anch, g3a_grow_impl_bbinom(
+    maxlengthgroupgrowth = 38L)),
+  g3a_naturalmortality(anch),
+  g3a_initialconditions_normalcv(anch),
+  g3a_renewal_normalparam(anch,
+    run_step = NULL),
+  g3a_age(anch),
+  NULL)
+
+actions_likelihood_anch <- list(
+  g3l_understocking(list(anch), weight = 1e+08, nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_anch, actions_likelihood_anch)
+
+
+# Create fleet definition for seine ####################
+seine <- g3_fleet("seine") |> g3s_livesonareas(area_names["IXa"])
+
+landings_seine <- read_excel(data_path, "landings_seine", na = c("", "NA"))
+ldist_seine <- read_excel(data_path, "ldist_seine", na = c("", "NA"))
+aldist_seine <- read_excel(data_path, "aldist_seine", na = c("", "NA"))
+
+actions_seine <- list(
+  g3a_predate_fleet(
+    seine,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_seine", landings_seine, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_seine <- list(
+  g3l_catchdistribution(
+    "ldist_seine",
+    ldist_seine,
+    fleets = list(seine),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_seine",
+    aldist_seine,
+    fleets = list(seine),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_seine, actions_likelihood_seine)
+
+
+# Create fleet definition for ecocadiz ####################
+ecocadiz <- g3_fleet("ecocadiz") |> g3s_livesonareas(area_names["IXa"])
+
+landings_ecocadiz <- read_excel(data_path, "landings_ecocadiz", na = c("", "NA"))
+ldist_ecocadiz <- read_excel(data_path, "ldist_ecocadiz", na = c("", "NA"))
+aldist_ecocadiz <- read_excel(data_path, "aldist_ecocadiz", na = c("", "NA"))
+
+actions_ecocadiz <- list(
+  g3a_predate_fleet(
+    ecocadiz,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_ecocadiz", landings_ecocadiz, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_ecocadiz <- list(
+  g3l_catchdistribution(
+    "ldist_ecocadiz",
+    ldist_ecocadiz,
+    fleets = list(ecocadiz),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_ecocadiz",
+    aldist_ecocadiz,
+    fleets = list(ecocadiz),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_ecocadiz, actions_likelihood_ecocadiz)
+
+
+# Create fleet definition for pelago ####################
+pelago <- g3_fleet("pelago") |> g3s_livesonareas(area_names["IXa"])
+
+landings_pelago <- read_excel(data_path, "landings_pelago", na = c("", "NA"))
+ldist_pelago <- read_excel(data_path, "ldist_pelago", na = c("", "NA"))
+aldist_pelago <- read_excel(data_path, "aldist_pelago", na = c("", "NA"))
+
+actions_pelago <- list(
+  g3a_predate_fleet(
+    pelago,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_pelago", landings_pelago, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_pelago <- list(
+  g3l_catchdistribution(
+    "ldist_pelago",
+    ldist_pelago,
+    fleets = list(pelago),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_pelago",
+    aldist_pelago,
+    fleets = list(pelago),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_pelago, actions_likelihood_pelago)
+
+
+# Create fleet definition for ECOREC ####################
+ECOREC <- g3_fleet("ECOREC") |> g3s_livesonareas(area_names["IXa"])
+
+landings_ECOREC <- read_excel(data_path, "landings_ECOREC", na = c("", "NA"))
+ldist_ECOREC <- read_excel(data_path, "ldist_ECOREC", na = c("", "NA"))
+aldist_ECOREC <- read_excel(data_path, "aldist_ECOREC", na = c("", "NA"))
+
+actions_ECOREC <- list(
+  g3a_predate_fleet(
+    ECOREC,
+    list(anch),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_numberfleet(
+      g3_timeareadata("landings_ECOREC", landings_ECOREC, "weight", areas = area_names))),
+  NULL)
+actions_likelihood_ECOREC <- list(
+  g3l_catchdistribution(
+    "ldist_ECOREC",
+    ldist_ECOREC,
+    fleets = list(ECOREC),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  g3l_catchdistribution(
+    "aldist_ECOREC",
+    aldist_ECOREC,
+    fleets = list(ECOREC),
+    stocks = list(anch),
+    function_f = g3l_distribution_sumofsquares(),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_ECOREC, actions_likelihood_ECOREC)
+
+
+# Create abundance index for si_ecocadiz ####################
+dist_si_ecocadiz <- read_excel(data_path, "dist_si_ecocadiz", na = c("", "NA"))
+
+actions_si_ecocadiz <- list(
+  NULL)
+actions_likelihood_si_ecocadiz <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_ecocadiz",
+    dist_si_ecocadiz,
+    
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_ecocadiz, actions_likelihood_si_ecocadiz)
+
+
+# Create abundance index for si_pelago ####################
+dist_si_pelago <- read_excel(data_path, "dist_si_pelago", na = c("", "NA"))
+
+actions_si_pelago <- list(
+  NULL)
+actions_likelihood_si_pelago <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_pelago",
+    dist_si_pelago,
+    
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_pelago, actions_likelihood_si_pelago)
+
+
+# Create abundance index for si_ECOREC ####################
+dist_si_ECOREC <- read_excel(data_path, "dist_si_ECOREC", na = c("", "NA"))
+
+actions_si_ECOREC <- list(
+  NULL)
+actions_likelihood_si_ECOREC <- list(
+
+  g3l_abundancedistribution(
+    "dist_si_ECOREC",
+    dist_si_ECOREC,
+    
+    stocks = list(anch),
+    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    area_group = area_names,
+    report = TRUE,
+    nll_breakdown = TRUE),
+  NULL)
+
+actions <- c(actions, actions_si_ECOREC, actions_likelihood_si_ECOREC)
+
+
+# Create model objective function ####################
+
+# Turn model into C++ code
+model_code <- g3_to_tmb(c(actions, list(
+    # Include detailed reporting for all actions
+    g3a_report_detail(actions),
+    # Add lower/upper bounds from parameters to output likelihood
+    g3l_bounds_penalty(actions) )))
+
+# Guess l50 / linf based on stock sizes
+estimate_l50 <- gadget3::g3_stock_def(anch, "midlen")[[length(gadget3::g3_stock_def(anch, "midlen")) / 2]]
+estimate_linf <- max(gadget3::g3_stock_def(anch, "midlen"))
+estimate_t0 <- gadget3::g3_stock_def(anch, "minage") - 0.8
+
+attr(model_code, "parameter_template") |>
+  # fish.init.scalar & fish.rec.scalar: Overall scalar for recruitment/initial conditions, see g3a_renewal_normalparam()
+  g3_init_val("*.rec|init.scalar", 10, lower = 0.001, upper = 200) |>
+  # fish.rec.(age): Per-age recriutment scalar, see g3a_renewal_normalparam()
+  g3_init_val("*.init.#", 10, lower = 0.001, upper = 200) |>
+  # fish.rec.(year): Recruitment level year-on-year, see g3a_renewal_normalparam()
+  g3_init_val("*.rec.#", 100, lower = 1e-6, upper = 1000) |>
+  # fish.rec.sd: Standard deviation for recruitment, see g3a_renewal_normalparam()
+  g3_init_val("*.rec.sd", 5, lower = 4, upper = 20) |>
+  # init.F: Offset for initial M, see g3a_renewal_initabund()
+  g3_init_val("init.F", 0.5, lower = 0.1, upper = 1) |>
+
+  # fish.M.(age): per-age M for our species, see g3a_naturalmortality()
+  g3_init_val("*.M.#", 0.15, lower = 0.001, upper = 1) |>
+
+  # fish.Linf, fish.K, fish.t0: VonB parameters for our species, see g3a_renewal_vonb_t0(), g3a_grow_lengthvbsimple()
+  g3_init_val("*.Linf", estimate_linf, spread = 0.2) |>
+  g3_init_val("*.K", 0.3, lower = 0.04, upper = 1.2) |>
+  g3_init_val("*.t0", estimate_t0, spread = 2) |>
+
+  # fish.walpha, fish.wbeta: Age/weight relationship for initialconditions, renewal, see g3a_renewal_normalparam()
+  g3_init_val("*.walpha", 0.01, optimise = FALSE) |>
+  g3_init_val("*.wbeta", 3, optimise = FALSE) |>
+
+  # fish.f_surv.alpha, fish.f_surv.l50: Curve/l50 for fishing suitability, see g3_suitability_exponentiall50()
+  g3_init_val("*.*.alpha", 0.07, lower = 0.01, upper = 0.2) |>
+  g3_init_val("*.*.l50", estimate_l50, spread = 0.25) |>
+
+  # fish.bbin: Beta for beta-binomial distribution for fish growth, see g3a_grow_impl_bbinom()
+  g3_init_val("*.bbin", 100, lower = 1e-05, upper = 1000) |>
+
+  # identity() is a do-nothing function, but it lets us finish on a new line
+  identity() -> params.in
+
+
+# Optimise model ################################
+obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
+
+params.out <- gadgetutils::g3_iterative(getwd(),
+    wgts = "WGTS",
+    model = model_code,
+    params.in = params.in,
+    grouping = list(
+        fleet = c("ldist_seine", "aldist_seine", "ldist_ecocadiz", "aldist_ecocadiz", "ldist_pelago", "aldist_pelago", "ldist_ECOREC", "aldist_ECOREC"),
+        abund = c("dist_si_ecocadiz", "dist_si_pelago", "dist_si_ECOREC")),
+    method = "BFGS",
+    control = list(maxit = 100, reltol = 1e-10),
+    use_parscale = TRUE,
+    shortcut = FALSE,
+    cv_floor = 0.05,
+    resume_final = FALSE)
+
+# Generate detailed report ######################
+fit <- gadgetutils::g3_fit(model_code, params.out)
+gadgetplots::gadget_plots(fit, "figs", file_type = "html")
+utils::browseURL("figs/model_output_figures.html")
+
+

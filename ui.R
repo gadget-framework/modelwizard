@@ -121,4 +121,9 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       textAreaInput('script_ss_text', value = T("Loading..."), label = T("Code"), width = "100%", height = "80rem"),
       "")),
 
+  tabPanel(T("Other models"),
+    div(class="container",
+        HTML(readLines('other-models.html')),
+      "")),
+
   footer = includeHTML(branding_footer))

@@ -82,8 +82,6 @@ Once all model data is provided, you can visit the **SS3/r4ss script** tab to do
 
 Download the spreadsheet, copy-paste the code into a R script and run it.
 
-Visit [demo_output_figures](demo_output_figures.html) to see representative output from running the demo.
-
 At this point you have should have a functional SS3 model.
 However, the results it produces will not be useful without futher tuning.
 The next step should be the [SS3 documentation](https://vlab.noaa.gov/web/stock-synthesis) and [r4ss documentation](https://r4ss.github.io/r4ss/) to learn more about how to customise your model.

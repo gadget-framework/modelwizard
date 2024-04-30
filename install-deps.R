@@ -14,7 +14,7 @@ withCallingHandlers({
     remotes::install_github("gadget-framework/gadgetutils")
     remotes::install_github("gadget-framework/gadgetplots")
 
-    install.packages("r4ss")
+    remotes::install_github("r4ss/r4ss")
     install.packages("reshape2")
 }, warning = stop)
 

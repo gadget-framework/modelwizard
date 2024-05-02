@@ -185,17 +185,11 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.1,
     stringsAsFactors = TRUE))
 
-inputs$ctl$Q_parms[paste0("LnQ_base_", "seine"),] <- list(
-    LO = 0,
-    HI = 5.5,
-    INIT = 0.1,
-    PHASE = 2 )
-
 inputs$ctl$size_selex_types["seine", "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "seine"),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "seine"),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "seine"),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,2)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "seine"),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,2)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types["seine", "Pattern"] <- 12
@@ -264,13 +258,22 @@ inputs$ctl$Q_parms[paste0("LnQ_base_", "ecocadiz"),] <- list(
     LO = 0,
     HI = 5.5,
     INIT = 0.1,
-    PHASE = 2 )
+    PRIOR = 0,
+    PR_SD = 0,
+    PR_type = 0,
+    PHASE = 2,
+    "env-var" = 0,
+    dev_mnyr = 0,
+    dev_mxyr = 0,
+    dev_PH = 0,
+    Block = 0,
+    Blk_Fxn = 0)
 
 inputs$ctl$size_selex_types["ecocadiz", "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ecocadiz"),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ecocadiz"),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ecocadiz"),c("LO","HI","INIT","PHASE")] <- c(-1,15,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ecocadiz"),c("LO","HI","INIT","PHASE")] <- c(-1,20,12,3)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types["ecocadiz", "Pattern"] <- 12
@@ -339,13 +342,22 @@ inputs$ctl$Q_parms[paste0("LnQ_base_", "pelago"),] <- list(
     LO = 0,
     HI = 5.5,
     INIT = 0.1,
-    PHASE = 2 )
+    PRIOR = 0,
+    PR_SD = 0,
+    PR_type = 0,
+    PHASE = 2,
+    "env-var" = 0,
+    dev_mnyr = 0,
+    dev_mxyr = 0,
+    dev_PH = 0,
+    Block = 0,
+    Blk_Fxn = 0)
 
 inputs$ctl$size_selex_types["pelago", "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "pelago"),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "pelago"),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "pelago"),c("LO","HI","INIT","PHASE")] <- c(-1,15,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "pelago"),c("LO","HI","INIT","PHASE")] <- c(-1,20,12,3)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types["pelago", "Pattern"] <- 12
@@ -414,13 +426,22 @@ inputs$ctl$Q_parms[paste0("LnQ_base_", "ECOREC"),] <- list(
     LO = 0,
     HI = 5.5,
     INIT = 0.1,
-    PHASE = 2 )
+    PRIOR = 0,
+    PR_SD = 0,
+    PR_type = 0,
+    PHASE = 2,
+    "env-var" = 0,
+    dev_mnyr = 0,
+    dev_mxyr = 0,
+    dev_PH = 0,
+    Block = 0,
+    Blk_Fxn = 0)
 
 inputs$ctl$size_selex_types["ECOREC", "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-1,15,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-1,20,12,3)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types["ECOREC", "Pattern"] <- 12
@@ -948,7 +969,6 @@ inputs$ctl$init_F<-NULL
 inputs$ctl$maxlambdaphase<- 1
 
 inputs$ctl$N_lambdas <- nrow(inputs$ctl$lambdas)
-#if (nrow(inputs$ctl$lambdas) == 0) inputs$ctl$lambdas <- NULL
 inputs$ctl$more_stddev_reporting<-0
 
 # Finalise model #######################

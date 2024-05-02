@@ -230,17 +230,11 @@ inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.1,
     stringsAsFactors = TRUE))
 
-inputs$ctl$Q_parms[paste0("LnQ_base_", ${deparse1(r$name)}),] <- list(
-    LO = 0,
-    HI = 5.5,
-    INIT = 0.1,
-    PHASE = 2 )
-
 inputs$ctl$size_selex_types[${deparse1(r$name)}, "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,2)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,2)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types[${deparse1(r$name)}, "Pattern"] <- 12
@@ -324,13 +318,22 @@ inputs$ctl$Q_parms[paste0("LnQ_base_", ${deparse1(r$name)}),] <- list(
     LO = 0,
     HI = 5.5,
     INIT = 0.1,
-    PHASE = 2 )
+    PRIOR = 0,
+    PR_SD = 0,
+    PR_type = 0,
+    PHASE = 2,
+    "env-var" = 0,
+    dev_mnyr = 0,
+    dev_mxyr = 0,
+    dev_PH = 0,
+    Block = 0,
+    Blk_Fxn = 0)
 
 inputs$ctl$size_selex_types[${deparse1(r$name)}, "Pattern"] <- 1
 inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
 
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
-inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,15,10,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,20,12,3)
 inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
 
 inputs$ctl$age_selex_types[${deparse1(r$name)}, "Pattern"] <- 12

@@ -379,7 +379,7 @@ inputs$dat$ageerror <- as.data.frame(t(data.frame(
 
 # *Age composition*
 ${agedist_sym}<-${data_sym} |>
-  group_by(year,step,age) |> summarise(total=sum(number))
+  group_by(year,step,age) |> summarise(total=sum(number, na.rm = TRUE))
 # Rotate age groupings, renaming to SS labels
 ${agedist_sym} <- reshape2::dcast(${agedist_sym},
                                 year + step  ~ age, value.var = "total")
@@ -393,7 +393,7 @@ ${agecomp_sym}<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=-1,
   Lbin_hi=-1,
-  NSamp = rowSums(${agedist_sym}[,lvls_a_map]),
+  NSamp = rowSums(${agedist_sym}[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), ${agedist_sym}[,lvls_a_map])
 ${agecomp_sym}[,lvls_a_map]<-${agecomp_sym}[,lvls_a_map]/${agecomp_sym}$NSamp #replace number by proportion
 
@@ -416,7 +416,7 @@ ${agelencomp_sym}<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=as.numeric(${data_sym}$length),
   Lbin_hi=as.numeric(${data_sym}$length),
-  NSamp = rowSums(${data_sym}[,lvls_a_map]),
+  NSamp = rowSums(${data_sym}[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), ${data_sym}[,lvls_a_map])
 ${agelencomp_sym}<-${agelencomp_sym}[!${agelencomp_sym}$NSamp==0,] # remove row with  size sample equal to 0.
 ${agelencomp_sym}[,lvls_a_map]<-${agelencomp_sym}[,lvls_a_map]/${agelencomp_sym}$NSamp #replace number by proportion

@@ -86,6 +86,6 @@ At this point you have should have a functional SS3 model.
 However, the results it produces will not be useful without futher tuning.
 The next step should be the [SS3 documentation](https://vlab.noaa.gov/web/stock-synthesis) and [r4ss documentation](https://r4ss.github.io/r4ss/) to learn more about how to customise your model.
 
-Visit [ss3/_SS_output.html](ss3/_SS_output.html) to see representative output from running the demo.
+Visit [ss3/plots/_SS_output.html](ss3/plots/_SS_output.html) to see representative output from running the demo.
 
 Also, visit [the Math4Fish website](https://math4fish.ieo.csic.es/proyecto-2-3/) for introductory material on developing an SS3 model.

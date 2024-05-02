@@ -510,6 +510,21 @@ inputs$ctl$init_F<-NULL
 
 mw_ss_code_footer <- function(spec, xlsx) {
     template_str(r'(
+## Lambdas ----
+
+# Lambdas:
+#   maxlambdaphase is set to 1, indicating that lambda values will be estimated in
+#.  the first phase of the model.
+# The number of lambdas (N_lambdas) is determined based on the number of rows in lambdas.
+#.If lambdas is empty, itss set to NULL.
+# more_stddev_reporting is set to 0, indicating that no further standard deviation reporting
+# is required.
+
+inputs$ctl$maxlambdaphase<- 1
+
+inputs$ctl$N_lambdas <- nrow(inputs$ctl$lambdas)
+inputs$ctl$more_stddev_reporting<-0
+
 # Finalise model #######################
 
 # Set rownames (so they can be added as comments into data.ss)

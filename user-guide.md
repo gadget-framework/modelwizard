@@ -39,21 +39,21 @@ Enter the years your model will cover, and seasonality if desired.
 
 Give your stock a name and describe it's physical attributes, to configure the model bins.
 
-### **Commercial & survey fleets** section
+### **Commercial fleets** section
 
-For each fleet present in your model, click **Add new** to add a section to the page:
+For each commercial fleet present in your model, click **Add new** to add a section to the page:
 
 * **identifier**: A short name for the fleet to use in the model
 * **Start/end year for fleet**: If the fleet is not present for the entire model period, enter the years for which it is operational
 * **Landings in**: The unit the landings data will be provided in the next tab
 * **Length distribution** / **Age-Length distribution**: If data is available for either, choose the unit and provide the data on the next tab
 
-### **Abundance indices** section
+### **Survey fleets** section
 
-As with fleets, click **Add new** to add a section to the page.
-The options are the same, apart from:
+For each survey fleet present in your model, click **Add new** to add a section to the page.
+The fields are the same as above, apart from:
 
-* **Aggregated observations**: If you have observation data not broken down by length/age, choose the unit and provide the data on the next tab
+* **Catch Per Unit Effort (CPUE)**: Unlike commercial fleets, survey fleets are assumed to catch with constant effort. Select the unit the CPUE data will be provided in the next tab
 
 ## Providing observation data for the model
 

@@ -12,7 +12,7 @@ ok_baseline <- function (test_name, output) {
     ok(ut_cmp_identical(output, base_output), sprintf("%s: Matches baseline", test_name))
 }
 xlsx_to_spec <- function (xlsx_path = 'anch.xlsx') {
-    spec_tbls <- c('time', 'area', 'stock', 'fleet', 'abund')
+    spec_tbls <- c('time', 'area', 'stock', 'comm', 'surv')
     structure(
         lapply(spec_tbls, function(n) readxl::read_xlsx(xlsx_path, n)),
         names = spec_tbls)

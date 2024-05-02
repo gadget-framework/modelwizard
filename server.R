@@ -181,7 +181,7 @@ extractDataFrames <- function (input, spec = TRUE, data = FALSE) {
     }
 
     if (spec) {
-        out <- c('time', 'area', 'stock', 'fleet', 'abund')
+        out <- c('time', 'area', 'stock', 'comm', 'surv')
         names(out) <- out
         out <- lapply(out, function (n) extractSingleDataFrame(input, n))
     } else {
@@ -245,7 +245,7 @@ server <- function(input, output, session) {
 
         # Pass 2 (after UI recalculated): Set sect values
         executeAtNextInput(session, expr = {
-            for (n in c('time', 'area', 'stock', 'fleet', 'abund')) {
+            for (n in c('time', 'area', 'stock', 'comm', 'surv')) {
                 df <- as.data.frame(readxl::read_excel(file_path, n))
                 if ('name' %in% names(df) && length(df$name) > 0) {
                     # Add table's names to name mapping
@@ -327,11 +327,11 @@ server <- function(input, output, session) {
         ""), default_count = 1, button_add = FALSE, button_remove = FALSE)
     output$stocks <- sect$stock$ui
 
-    # Fleet / abundance indices ###############################################
+    # Fleets ##################################################################
 
-    sect$fleet <- reactiveSections(input, 'fleet', function (genId) div(class="panel panel-default panel-body",
+    sect$comm <- reactiveSections(input, 'comm', function (genId) div(class="panel panel-default panel-body",
         textInput(genId('name'), isolate(input[[genId('name')]]), label=T("identifier")),
-        p(class="help-block", T("An identifier to name the fleet/survey within the model. Letters, numbers and underscore are allowed.")),
+        p(class="help-block", T("An identifier to name the commercial within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('year_min'), isolate(coalesce(
                 input[[genId('year_min')]],
@@ -350,7 +350,7 @@ server <- function(input, output, session) {
         selectInput(genId('landings'), T("Landings in"), structure(
             c('weight', 'number'),
             names = c(T('Tonnes'), T('Number of individuals'))), selected = isolate(input[[genId('landings')]])),
-        p(class="help-block", T("The unit the landings data for this fleet will be provided in on the next tab.")),
+        p(class="help-block", T("What unit will the landings data be provided in?")),
         div(class="row",
             div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
                 none = T('No data'),
@@ -363,10 +363,10 @@ server <- function(input, output, session) {
             ""),
         p(class="help-block", T("If age or age-length distribution data is available, select the relevant option and fill in the data in the next tab.")),
         ""))
-    output$fleets <- sect$fleet$ui
+    output$comm <- sect$comm$ui
 
-    sect$abund <- reactiveSections(input, 'abund', function (genId) div(class="panel panel-default panel-body",
-        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("Abundance Index identifier")),
+    sect$surv <- reactiveSections(input, 'surv', function (genId) div(class="panel panel-default panel-body",
+        textInput(genId('name'), isolate(input[[genId('name')]]), label=T("identifier")),
         p(class="help-block", T("An identifier to name the abundance index within the model. Letters, numbers and underscore are allowed.")),
         div(class="row",
             div(class="col-md-3", numericInput(genId('year_min'), isolate(coalesce(
@@ -383,11 +383,12 @@ server <- function(input, output, session) {
             selectInput(genId('step_active'), T("Active at step"), timestepChoices(), selected = isolate(input[[genId('step_active')]])),
             p(class="help-block", T("If the survey is only performed in one step/season in the year, choose it here.")),
             span())),
+        selectInput(genId('si'), T("Catch Per Unit Effort (CPUE)"), list.swapnames(
+            none = T('No data'),
+            weight = T('Tonnes'),
+            number =  T('Number of individuals')), selected = isolate(input[[genId('si')]])),
+        p(class="help-block", T("What unit will the CPUE data be provided in?")),
         div(class="row",
-            div(class="col-md-3", selectInput(genId('dist'), T("Aggregated observations"), list.swapnames(
-                none = T('No data'),
-                weight = T('Tonnes'),
-                number =  T('Number of individuals')), selected = isolate(input[[genId('dist')]]))),
             div(class="col-md-3", selectInput(genId('ldist'), T("Length distribution"), list.swapnames(
                 none = T('No data'),
                 weight = T('Tonnes'),
@@ -397,13 +398,13 @@ server <- function(input, output, session) {
                 weight = T('Tonnes'),
                 number =  T('Number of individuals')), selected = isolate(input[[genId('aldist')]]))),
             ""),
-        p(class="help-block", T("Select which kinds of abudance distribution data are available and fill in the data in the next tab.")),
+        p(class="help-block", T("If age or age-length distribution data is available, select the relevant option and fill in the data in the next tab.")),
         ""))
-    output$abund <- sect$abund$ui
+    output$surv <- sect$surv$ui
 
     # Fleet data ##############################################################
 
-    output$all_data <- renderUI(do.call(tabsetPanel, c(list(id = "all_data_tabs"), lapply(grep('^(?:fleet|abund)_\\d+_(?:landings|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
+    output$all_data <- renderUI(do.call(tabsetPanel, c(list(id = "all_data_tabs"), lapply(grep('^(?:comm|surv)_\\d+_(?:landings|si|dist|ldist|aldist)$', names(input), value = TRUE), function (df_inp_name) {
         parts <- strsplit(df_inp_name, "_")[[1]]
         base_name <- paste(parts[[1]], parts[[2]], sep = "_")
         df_type <- parts[[3]]

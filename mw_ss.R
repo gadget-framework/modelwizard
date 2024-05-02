@@ -164,7 +164,7 @@ inputs$ctl$recdev_adv<-0
 )')}
 
 
-mw_ss_code_fleet <- function (r, spec, xlsx) {
+mw_ss_code_comm <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(paste0('fleet_', r$name))
     area_names <- spec$area$name
     stock_list <- lapply(spec$stock$name, as.symbol)
@@ -176,13 +176,11 @@ mw_ss_code_fleet <- function (r, spec, xlsx) {
     } else {
         surveytiming <- paste0("(", r$step_active, "* 12/inputs$dat$nseas)/12")
     }
-    # TODO: We need a means to decide survey vs commercial
-    fleetinfotype <- if (r$name == "seine") 1 else 3
 
     template_str(r'(
-# Create fleet definition for ${r$name} ####################
+# Create commercial fleet ${r$name} ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
-    type = ${fleetinfotype},
+    type = 1,
     surveytiming = ${surveytiming},
     area = 1,  # Assume one area
     units = ${if (r$landings == "weight") "1,  # Biomass (metric tons)" else "2,  # Numbers (thousands of fish)"}
@@ -224,7 +222,7 @@ if (nrow(inputs$dat$catch) == 0) inputs$dat$catch <- rbind(inputs$dat$catch, dat
     stringsAsFactors = TRUE))
 
 ${mw_ss_code_readxl(data_name, xlsx)}
-if (${fleetinfotype == 1}) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
+inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = ${data_sym}$year,
     seas = ${data_sym}$step,
     fleet = which(inputs$dat$fleetinfo$fleetname == ${deparse1(r$name)}),
@@ -232,13 +230,6 @@ if (${fleetinfotype == 1}) inputs$dat$catch <- rbind(inputs$dat$catch, data.fram
     catch_se = 0.1,
     stringsAsFactors = TRUE))
 
-if (${fleetinfotype == 3}) inputs$ctl$Q_options[${deparse1(r$name)},] <- list(
-    fleet = nrow(inputs$dat$fleetinfo),
-    link = 1,
-    link_info = 0,
-    extra_se = 0,
-    biasadj = 0,
-    float = 0 )
 inputs$ctl$Q_parms[paste0("LnQ_base_", ${deparse1(r$name)}),] <- list(
     LO = 0,
     HI = 5.5,
@@ -260,27 +251,94 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", ${deparse1(r$name)}),c("LO","HI
 inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
 )')}
 
-mw_ss_code_abund <- function (r, spec, xlsx) {
+mw_ss_code_surv <- function (r, spec, xlsx) {
     fleet_sym <- escape_sym(r$name)
     stock_list <- lapply(spec$stock$name, as.symbol)
 
-    if (r[['dist']] == 'none') return("")
-    if (r[['aldist']] != 'none') stop("Age-length distribution for abundance indices not supported: ", r$name)
+    if (r[['si']] == 'none') return("")
 
-    cpue_name <- unname(paste('dist', r$name, sep = "_"))
+    cpue_name <- unname(paste('si', r$name, sep = "_"))
     cpue_sym <- escape_sym(cpue_name)
-    
+
+    if (r$step_active == 0) {
+        surveytiming <- "-1" # All steps
+    } else {
+        surveytiming <- paste0("(", r$step_active, "* 12/inputs$dat$nseas)/12")
+    }
+
     template_str(r'(
-# Create abundance index for ${r$name} ####################
+# Create survey fleet ${r$name} ####################
 ${mw_ss_code_readxl(cpue_name, xlsx)}
+
+inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
+    type = 3,
+    surveytiming = ${surveytiming},
+    area = 1,  # Assume one area
+    units = 1,  # NB: Survey fleets ignore this value
+    need_catch_mult = 0,
+    fleetname = ${deparse1(r$name)},
+    stringsAsFactors = FALSE))
+
+inputs$dat$len_info[${deparse1(r$name)},] <- list(
+    mintailcomp = -1,
+    addtocomp = 1e-4,
+    combine_M_F = 0,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 1)
+
+inputs$dat$age_info[${deparse1(r$name)},] <- list(
+    mintailcomp = -1,
+    addtocomp = 1e-4,
+    combine_M_F = 0,
+    CompressBins = 0,
+    CompError = 0,
+    ParmSelect = 0,
+    minsamplesize = 1)
+
+inputs$dat$CPUEinfo[${deparse1(r$name)},] <- list(
+    Fleet = which(inputs$dat$fleetinfo$fleetname == ${deparse1(r$name)}),
+    Units = ${if (r$si == "weight") "1,  # Biomass (metric tons)" else "2,  # Numbers (thousands of fish)"},
+    Errtype = 0,
+    SD_Report = 0)
 
 inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
   year = ${cpue_sym}$year,
   seas = ${cpue_sym}$step*(12/inputs$dat$nseas),
-  fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", ${deparse1(r$name)})),
+  fleet = which(inputs$dat$fleetinfo$fleetname == ${deparse1(r$name)}),
   catch = ${cpue_sym}[["weight"]],
   catch_se = 0.3,
   stringsAsFactors = TRUE))
+
+# https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#catchability CPUE scaling
+inputs$ctl$Q_options[${deparse1(r$name)},] <- list(
+    fleet = which(inputs$dat$fleetinfo$fleetname == ${deparse1(r$name)}),
+    link = 1,
+    link_info = 0,
+    extra_se = 0,
+    biasadj = 0,
+    float = 0 )
+
+inputs$ctl$Q_parms[paste0("LnQ_base_", ${deparse1(r$name)}),] <- list(
+    LO = 0,
+    HI = 5.5,
+    INIT = 0.1,
+    PHASE = 2 )
+
+inputs$ctl$size_selex_types[${deparse1(r$name)}, "Pattern"] <- 1
+inputs$ctl$size_selex_types[is.na(inputs$ctl$size_selex_types)] <- 0
+
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,10,8,3)
+inputs$ctl$size_selex_parms[paste0("SizeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,20,10,3)
+inputs$ctl$size_selex_parms[is.na(inputs$ctl$size_selex_parms)] <- 0
+
+inputs$ctl$age_selex_types[${deparse1(r$name)}, "Pattern"] <- 12
+inputs$ctl$age_selex_types[is.na(inputs$ctl$age_selex_types)] <- 0
+
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-2,5.5,0.1,-1)
+inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", ${deparse1(r$name)}),c("LO","HI","INIT","PHASE")] <- c(-1,5.5,5,-1)
+inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
 )')}
 
 mw_ss_code_ldist <- function (r, spec, xlsx) {
@@ -325,7 +383,7 @@ ${ldist_sym} <- reshape2::dcast(
 inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ${ldist_sym}$year,
     Seas = ${ldist_sym}$step * (12/inputs$dat$nseas),
-    Fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", ${deparse1(r$name)})),
+    Fleet = which(inputs$dat$fleetinfo$fleetname == ${deparse1(r$name)}),
     Gender = 0,
     Part = 0,
     NSamp = 100,
@@ -451,9 +509,6 @@ inputs$ctl$init_F<-NULL
 )')}
 
 mw_ss_code_footer <- function(spec, xlsx) {
-    fleet_syms <- vapply(spec$fleet$name, function (r_name) escape_sym(paste0('fleet_', r_name)), character(1))
-    abund_syms <- vapply(spec$abund$name, function (r_name) escape_sym(paste0('abund_', r_name)), character(1))
-
     template_str(r'(
 # Finalise model #######################
 
@@ -537,7 +592,7 @@ mw_ss_script <- function (
         compile = FALSE,
         run = FALSE) {
     stopifnot(is.list(spec) || is.environment(spec))
-    stopifnot(length(intersect(names(spec), c("abund", "area", "fleet", "stock", "time"))) == 5)
+    stopifnot(length(intersect(names(spec), c("area", "comm", "surv", "stock", "time"))) == 5)
 
     # Run fn(row, ...) for each row in tbl
     row_apply <- function (tbl, fn, ...) vapply(
@@ -550,12 +605,12 @@ mw_ss_script <- function (
         mw_ss_code_area(spec),
         row_apply(spec$time, mw_ss_code_time, spec),
         row_apply(spec$stock, mw_ss_code_stock, spec, xlsx),
-        row_apply(spec$fleet, mw_ss_code_fleet, spec, xlsx),
-        row_apply(spec$abund, mw_ss_code_abund, spec, xlsx),
-        row_apply(spec$fleet, mw_ss_code_ldist, spec, xlsx),
-        row_apply(spec$abund, mw_ss_code_ldist, spec, xlsx),
-        row_apply(spec$fleet, mw_ss_code_aldist, spec, xlsx),
-        row_apply(spec$abund, mw_ss_code_aldist, spec, xlsx),
+        row_apply(spec$comm, mw_ss_code_comm, spec, xlsx),
+        row_apply(spec$surv, mw_ss_code_surv, spec, xlsx),
+        row_apply(spec$comm, mw_ss_code_ldist, spec, xlsx),
+        row_apply(spec$surv, mw_ss_code_ldist, spec, xlsx),
+        row_apply(spec$comm, mw_ss_code_aldist, spec, xlsx),
+        row_apply(spec$surv, mw_ss_code_aldist, spec, xlsx),
         mw_ss_code_params(spec$params, spec, xlsx),
         mw_ss_code_footer(spec, xlsx),
 #        (if (compile) mw_ss_code_compile(spec, xlsx) else ""),

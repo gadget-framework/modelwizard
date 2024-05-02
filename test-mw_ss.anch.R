@@ -11,7 +11,7 @@ code <- mw_ss_script(list(
     time = read_excel(source_xlsx, 'time'),
     area = read_excel(source_xlsx, 'area'),
     stock = read_excel(source_xlsx, 'stock'),
-    fleet = read_excel(source_xlsx, 'fleet'),
-    abund = read_excel(source_xlsx, 'abund') ), xlsx = source_xlsx, compile = TRUE, run = TRUE)
+    comm = read_excel(source_xlsx, 'comm'),
+    surv = read_excel(source_xlsx, 'surv') ), xlsx = source_xlsx, compile = TRUE, run = TRUE)
 writeLines(code, con = script_out)
 source(script_out, echo = TRUE, max.deparse.length=1e3)

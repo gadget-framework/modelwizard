@@ -132,7 +132,7 @@ inputs$ctl$recdev_phase<-1
 inputs$ctl$recdev_adv<-0
 
 
-# Create fleet definition for seine ####################
+# Create commercial fleet seine ####################
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 1,
     surveytiming = -1,
@@ -177,7 +177,7 @@ if (nrow(inputs$dat$catch) == 0) inputs$dat$catch <- rbind(inputs$dat$catch, dat
 
 landings_seine <- readxl::read_excel(data_path, "landings_seine", na = c("", "NA"))
 
-if (TRUE) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
+inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     year = landings_seine$year,
     seas = landings_seine$step,
     fleet = which(inputs$dat$fleetinfo$fleetname == "seine"),
@@ -185,13 +185,6 @@ if (TRUE) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
     catch_se = 0.1,
     stringsAsFactors = TRUE))
 
-if (FALSE) inputs$ctl$Q_options["seine",] <- list(
-    fleet = nrow(inputs$dat$fleetinfo),
-    link = 1,
-    link_info = 0,
-    extra_se = 0,
-    biasadj = 0,
-    float = 0 )
 inputs$ctl$Q_parms[paste0("LnQ_base_", "seine"),] <- list(
     LO = 0,
     HI = 5.5,
@@ -213,12 +206,15 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "seine"),c("LO","HI","INIT","PH
 inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
 
 
-# Create fleet definition for ecocadiz ####################
+# Create survey fleet ecocadiz ####################
+si_ecocadiz <- readxl::read_excel(data_path, "si_ecocadiz", na = c("", "NA"))
+
+
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 3,
     surveytiming = (2* 12/inputs$dat$nseas)/12,
     area = 1,  # Assume one area
-    units = 1,  # Biomass (metric tons)
+    units = 1,  # NB: Survey fleets ignore this value
     need_catch_mult = 0,
     fleetname = "ecocadiz",
     stringsAsFactors = FALSE))
@@ -243,36 +239,27 @@ inputs$dat$age_info["ecocadiz",] <- list(
 
 inputs$dat$CPUEinfo["ecocadiz",] <- list(
     Fleet = which(inputs$dat$fleetinfo$fleetname == "ecocadiz"),
-    Units = 1,
+    Units = 1,  # Biomass (metric tons),
     Errtype = 0,
     SD_Report = 0)
 
-# Equilibrium catch fields
-if (nrow(inputs$dat$catch) == 0) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = -999,
-    seas = seq_len(inputs$dat$nseas),
+inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
+  year = si_ecocadiz$year,
+  seas = si_ecocadiz$step*(12/inputs$dat$nseas),
+  fleet = which(inputs$dat$fleetinfo$fleetname == "ecocadiz"),
+  catch = si_ecocadiz[["weight"]],
+  catch_se = 0.3,
+  stringsAsFactors = TRUE))
+
+# https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#catchability CPUE scaling
+inputs$ctl$Q_options["ecocadiz",] <- list(
     fleet = which(inputs$dat$fleetinfo$fleetname == "ecocadiz"),
-    catch = 0,
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-landings_ecocadiz <- readxl::read_excel(data_path, "landings_ecocadiz", na = c("", "NA"))
-
-if (FALSE) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = landings_ecocadiz$year,
-    seas = landings_ecocadiz$step,
-    fleet = which(inputs$dat$fleetinfo$fleetname == "ecocadiz"),
-    catch = landings_ecocadiz[["weight"]],
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-if (TRUE) inputs$ctl$Q_options["ecocadiz",] <- list(
-    fleet = nrow(inputs$dat$fleetinfo),
     link = 1,
     link_info = 0,
     extra_se = 0,
     biasadj = 0,
     float = 0 )
+
 inputs$ctl$Q_parms[paste0("LnQ_base_", "ecocadiz"),] <- list(
     LO = 0,
     HI = 5.5,
@@ -294,12 +281,15 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "ecocadiz"),c("LO","HI","INIT",
 inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
 
 
-# Create fleet definition for pelago ####################
+# Create survey fleet pelago ####################
+si_pelago <- readxl::read_excel(data_path, "si_pelago", na = c("", "NA"))
+
+
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 3,
     surveytiming = (1* 12/inputs$dat$nseas)/12,
     area = 1,  # Assume one area
-    units = 1,  # Biomass (metric tons)
+    units = 1,  # NB: Survey fleets ignore this value
     need_catch_mult = 0,
     fleetname = "pelago",
     stringsAsFactors = FALSE))
@@ -324,36 +314,27 @@ inputs$dat$age_info["pelago",] <- list(
 
 inputs$dat$CPUEinfo["pelago",] <- list(
     Fleet = which(inputs$dat$fleetinfo$fleetname == "pelago"),
-    Units = 1,
+    Units = 1,  # Biomass (metric tons),
     Errtype = 0,
     SD_Report = 0)
 
-# Equilibrium catch fields
-if (nrow(inputs$dat$catch) == 0) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = -999,
-    seas = seq_len(inputs$dat$nseas),
+inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
+  year = si_pelago$year,
+  seas = si_pelago$step*(12/inputs$dat$nseas),
+  fleet = which(inputs$dat$fleetinfo$fleetname == "pelago"),
+  catch = si_pelago[["weight"]],
+  catch_se = 0.3,
+  stringsAsFactors = TRUE))
+
+# https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#catchability CPUE scaling
+inputs$ctl$Q_options["pelago",] <- list(
     fleet = which(inputs$dat$fleetinfo$fleetname == "pelago"),
-    catch = 0,
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-landings_pelago <- readxl::read_excel(data_path, "landings_pelago", na = c("", "NA"))
-
-if (FALSE) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = landings_pelago$year,
-    seas = landings_pelago$step,
-    fleet = which(inputs$dat$fleetinfo$fleetname == "pelago"),
-    catch = landings_pelago[["weight"]],
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-if (TRUE) inputs$ctl$Q_options["pelago",] <- list(
-    fleet = nrow(inputs$dat$fleetinfo),
     link = 1,
     link_info = 0,
     extra_se = 0,
     biasadj = 0,
     float = 0 )
+
 inputs$ctl$Q_parms[paste0("LnQ_base_", "pelago"),] <- list(
     LO = 0,
     HI = 5.5,
@@ -375,12 +356,15 @@ inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "pelago"),c("LO","HI","INIT","P
 inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
 
 
-# Create fleet definition for ECOREC ####################
+# Create survey fleet ECOREC ####################
+si_ECOREC <- readxl::read_excel(data_path, "si_ECOREC", na = c("", "NA"))
+
+
 inputs$dat$fleetinfo <- rbind(inputs$dat$fleetinfo, data.frame(
     type = 3,
     surveytiming = (3* 12/inputs$dat$nseas)/12,
     area = 1,  # Assume one area
-    units = 1,  # Biomass (metric tons)
+    units = 1,  # NB: Survey fleets ignore this value
     need_catch_mult = 0,
     fleetname = "ECOREC",
     stringsAsFactors = FALSE))
@@ -405,36 +389,27 @@ inputs$dat$age_info["ECOREC",] <- list(
 
 inputs$dat$CPUEinfo["ECOREC",] <- list(
     Fleet = which(inputs$dat$fleetinfo$fleetname == "ECOREC"),
-    Units = 1,
+    Units = 1,  # Biomass (metric tons),
     Errtype = 0,
     SD_Report = 0)
 
-# Equilibrium catch fields
-if (nrow(inputs$dat$catch) == 0) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = -999,
-    seas = seq_len(inputs$dat$nseas),
+inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
+  year = si_ECOREC$year,
+  seas = si_ECOREC$step*(12/inputs$dat$nseas),
+  fleet = which(inputs$dat$fleetinfo$fleetname == "ECOREC"),
+  catch = si_ECOREC[["weight"]],
+  catch_se = 0.3,
+  stringsAsFactors = TRUE))
+
+# https://nmfs-ost.github.io/ss3-doc/SS330_User_Manual_release.html#catchability CPUE scaling
+inputs$ctl$Q_options["ECOREC",] <- list(
     fleet = which(inputs$dat$fleetinfo$fleetname == "ECOREC"),
-    catch = 0,
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-landings_ECOREC <- readxl::read_excel(data_path, "landings_ECOREC", na = c("", "NA"))
-
-if (FALSE) inputs$dat$catch <- rbind(inputs$dat$catch, data.frame(
-    year = landings_ECOREC$year,
-    seas = landings_ECOREC$step,
-    fleet = which(inputs$dat$fleetinfo$fleetname == "ECOREC"),
-    catch = landings_ECOREC[["weight"]],
-    catch_se = 0.1,
-    stringsAsFactors = TRUE))
-
-if (TRUE) inputs$ctl$Q_options["ECOREC",] <- list(
-    fleet = nrow(inputs$dat$fleetinfo),
     link = 1,
     link_info = 0,
     extra_se = 0,
     biasadj = 0,
     float = 0 )
+
 inputs$ctl$Q_parms[paste0("LnQ_base_", "ECOREC"),] <- list(
     LO = 0,
     HI = 5.5,
@@ -454,45 +429,6 @@ inputs$ctl$age_selex_types[is.na(inputs$ctl$age_selex_types)] <- 0
 inputs$ctl$age_selex_parms[paste0("AgeSel_P_1_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-2,5.5,0.1,-1)
 inputs$ctl$age_selex_parms[paste0("AgeSel_P_2_", "ECOREC"),c("LO","HI","INIT","PHASE")] <- c(-1,5.5,5,-1)
 inputs$ctl$age_selex_parms[is.na(inputs$ctl$age_selex_parms)] <- 0
-
-
-# Create abundance index for si_ecocadiz ####################
-dist_si_ecocadiz <- readxl::read_excel(data_path, "dist_si_ecocadiz", na = c("", "NA"))
-
-
-inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
-  year = dist_si_ecocadiz$year,
-  seas = dist_si_ecocadiz$step*(12/inputs$dat$nseas),
-  fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "si_ecocadiz")),
-  catch = dist_si_ecocadiz[["weight"]],
-  catch_se = 0.3,
-  stringsAsFactors = TRUE))
-
-
-# Create abundance index for si_pelago ####################
-dist_si_pelago <- readxl::read_excel(data_path, "dist_si_pelago", na = c("", "NA"))
-
-
-inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
-  year = dist_si_pelago$year,
-  seas = dist_si_pelago$step*(12/inputs$dat$nseas),
-  fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "si_pelago")),
-  catch = dist_si_pelago[["weight"]],
-  catch_se = 0.3,
-  stringsAsFactors = TRUE))
-
-
-# Create abundance index for si_ECOREC ####################
-dist_si_ECOREC <- readxl::read_excel(data_path, "dist_si_ECOREC", na = c("", "NA"))
-
-
-inputs$dat$CPUE <- rbind(inputs$dat$CPUE, data.frame(
-  year = dist_si_ECOREC$year,
-  seas = dist_si_ECOREC$step*(12/inputs$dat$nseas),
-  fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "si_ECOREC")),
-  catch = dist_si_ECOREC[["weight"]],
-  catch_se = 0.3,
-  stringsAsFactors = TRUE))
 
 
 # Create length distribution for seine ####################
@@ -528,7 +464,7 @@ ldist_seine <- reshape2::dcast(
 inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_seine$year,
     Seas = ldist_seine$step * (12/inputs$dat$nseas),
-    Fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "seine")),
+    Fleet = which(inputs$dat$fleetinfo$fleetname == "seine"),
     Gender = 0,
     Part = 0,
     NSamp = 100,
@@ -568,7 +504,7 @@ ldist_ecocadiz <- reshape2::dcast(
 inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_ecocadiz$year,
     Seas = ldist_ecocadiz$step * (12/inputs$dat$nseas),
-    Fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "ecocadiz")),
+    Fleet = which(inputs$dat$fleetinfo$fleetname == "ecocadiz"),
     Gender = 0,
     Part = 0,
     NSamp = 100,
@@ -608,7 +544,7 @@ ldist_pelago <- reshape2::dcast(
 inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_pelago$year,
     Seas = ldist_pelago$step * (12/inputs$dat$nseas),
-    Fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "pelago")),
+    Fleet = which(inputs$dat$fleetinfo$fleetname == "pelago"),
     Gender = 0,
     Part = 0,
     NSamp = 100,
@@ -648,14 +584,11 @@ ldist_ECOREC <- reshape2::dcast(
 inputs$dat$lencomp <- dplyr::bind_rows(inputs$dat$lencomp, cbind(data.frame(
     Yr = ldist_ECOREC$year,
     Seas = ldist_ECOREC$step * (12/inputs$dat$nseas),
-    Fleet = which(inputs$dat$fleetinfo$fleetname == gsub("^si_", "", "ECOREC")),
+    Fleet = which(inputs$dat$fleetinfo$fleetname == "ECOREC"),
     Gender = 0,
     Part = 0,
     NSamp = 100,
     stringsAsFactors = TRUE), ldist_ECOREC[,lvls_map]))
-
-
-
 
 
 # Create age-length distribution for seine ####################
@@ -692,7 +625,7 @@ inputs$dat$ageerror <- as.data.frame(t(data.frame(
 
 # *Age composition*
 agedist_seine<-aldist_seine |>
-  group_by(year,step,age) |> summarise(total=sum(number))
+  group_by(year,step,age) |> summarise(total=sum(number, na.rm = TRUE))
 # Rotate age groupings, renaming to SS labels
 agedist_seine <- reshape2::dcast(agedist_seine,
                                 year + step  ~ age, value.var = "total")
@@ -706,7 +639,7 @@ agecomp_seine<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=-1,
   Lbin_hi=-1,
-  NSamp = rowSums(agedist_seine[,lvls_a_map]),
+  NSamp = rowSums(agedist_seine[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), agedist_seine[,lvls_a_map])
 agecomp_seine[,lvls_a_map]<-agecomp_seine[,lvls_a_map]/agecomp_seine$NSamp #replace number by proportion
 
@@ -729,7 +662,7 @@ agelencomp_seine<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=as.numeric(aldist_seine$length),
   Lbin_hi=as.numeric(aldist_seine$length),
-  NSamp = rowSums(aldist_seine[,lvls_a_map]),
+  NSamp = rowSums(aldist_seine[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), aldist_seine[,lvls_a_map])
 agelencomp_seine<-agelencomp_seine[!agelencomp_seine$NSamp==0,] # remove row with  size sample equal to 0.
 agelencomp_seine[,lvls_a_map]<-agelencomp_seine[,lvls_a_map]/agelencomp_seine$NSamp #replace number by proportion
@@ -773,7 +706,7 @@ inputs$dat$ageerror <- as.data.frame(t(data.frame(
 
 # *Age composition*
 agedist_ecocadiz<-aldist_ecocadiz |>
-  group_by(year,step,age) |> summarise(total=sum(number))
+  group_by(year,step,age) |> summarise(total=sum(number, na.rm = TRUE))
 # Rotate age groupings, renaming to SS labels
 agedist_ecocadiz <- reshape2::dcast(agedist_ecocadiz,
                                 year + step  ~ age, value.var = "total")
@@ -787,7 +720,7 @@ agecomp_ecocadiz<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=-1,
   Lbin_hi=-1,
-  NSamp = rowSums(agedist_ecocadiz[,lvls_a_map]),
+  NSamp = rowSums(agedist_ecocadiz[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), agedist_ecocadiz[,lvls_a_map])
 agecomp_ecocadiz[,lvls_a_map]<-agecomp_ecocadiz[,lvls_a_map]/agecomp_ecocadiz$NSamp #replace number by proportion
 
@@ -810,7 +743,7 @@ agelencomp_ecocadiz<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=as.numeric(aldist_ecocadiz$length),
   Lbin_hi=as.numeric(aldist_ecocadiz$length),
-  NSamp = rowSums(aldist_ecocadiz[,lvls_a_map]),
+  NSamp = rowSums(aldist_ecocadiz[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), aldist_ecocadiz[,lvls_a_map])
 agelencomp_ecocadiz<-agelencomp_ecocadiz[!agelencomp_ecocadiz$NSamp==0,] # remove row with  size sample equal to 0.
 agelencomp_ecocadiz[,lvls_a_map]<-agelencomp_ecocadiz[,lvls_a_map]/agelencomp_ecocadiz$NSamp #replace number by proportion
@@ -854,7 +787,7 @@ inputs$dat$ageerror <- as.data.frame(t(data.frame(
 
 # *Age composition*
 agedist_pelago<-aldist_pelago |>
-  group_by(year,step,age) |> summarise(total=sum(number))
+  group_by(year,step,age) |> summarise(total=sum(number, na.rm = TRUE))
 # Rotate age groupings, renaming to SS labels
 agedist_pelago <- reshape2::dcast(agedist_pelago,
                                 year + step  ~ age, value.var = "total")
@@ -868,7 +801,7 @@ agecomp_pelago<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=-1,
   Lbin_hi=-1,
-  NSamp = rowSums(agedist_pelago[,lvls_a_map]),
+  NSamp = rowSums(agedist_pelago[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), agedist_pelago[,lvls_a_map])
 agecomp_pelago[,lvls_a_map]<-agecomp_pelago[,lvls_a_map]/agecomp_pelago$NSamp #replace number by proportion
 
@@ -891,7 +824,7 @@ agelencomp_pelago<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=as.numeric(aldist_pelago$length),
   Lbin_hi=as.numeric(aldist_pelago$length),
-  NSamp = rowSums(aldist_pelago[,lvls_a_map]),
+  NSamp = rowSums(aldist_pelago[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), aldist_pelago[,lvls_a_map])
 agelencomp_pelago<-agelencomp_pelago[!agelencomp_pelago$NSamp==0,] # remove row with  size sample equal to 0.
 agelencomp_pelago[,lvls_a_map]<-agelencomp_pelago[,lvls_a_map]/agelencomp_pelago$NSamp #replace number by proportion
@@ -935,7 +868,7 @@ inputs$dat$ageerror <- as.data.frame(t(data.frame(
 
 # *Age composition*
 agedist_ECOREC<-aldist_ECOREC |>
-  group_by(year,step,age) |> summarise(total=sum(number))
+  group_by(year,step,age) |> summarise(total=sum(number, na.rm = TRUE))
 # Rotate age groupings, renaming to SS labels
 agedist_ECOREC <- reshape2::dcast(agedist_ECOREC,
                                 year + step  ~ age, value.var = "total")
@@ -949,7 +882,7 @@ agecomp_ECOREC<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=-1,
   Lbin_hi=-1,
-  NSamp = rowSums(agedist_ECOREC[,lvls_a_map]),
+  NSamp = rowSums(agedist_ECOREC[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), agedist_ECOREC[,lvls_a_map])
 agecomp_ECOREC[,lvls_a_map]<-agecomp_ECOREC[,lvls_a_map]/agecomp_ECOREC$NSamp #replace number by proportion
 
@@ -972,7 +905,7 @@ agelencomp_ECOREC<-cbind(data.frame(
   Ageerr= 1,
   Lbin_lo=as.numeric(aldist_ECOREC$length),
   Lbin_hi=as.numeric(aldist_ECOREC$length),
-  NSamp = rowSums(aldist_ECOREC[,lvls_a_map]),
+  NSamp = rowSums(aldist_ECOREC[,lvls_a_map], na.rm = TRUE),
   stringsAsFactors = TRUE), aldist_ECOREC[,lvls_a_map])
 agelencomp_ECOREC<-agelencomp_ECOREC[!agelencomp_ECOREC$NSamp==0,] # remove row with  size sample equal to 0.
 agelencomp_ECOREC[,lvls_a_map]<-agelencomp_ECOREC[,lvls_a_map]/agelencomp_ECOREC$NSamp #replace number by proportion
@@ -980,9 +913,6 @@ agelencomp_ECOREC[,lvls_a_map]<-agelencomp_ECOREC[,lvls_a_map]/agelencomp_ECOREC
 inputs$dat$agecomp <- dplyr::bind_rows(inputs$dat$agecomp, agecomp_ECOREC, agelencomp_ECOREC)
 inputs$dat$agecomp[is.na(inputs$dat$agecomp)] <- 0
 rownames(inputs$dat$agecomp) <- NULL
-
-
-
 
 
 # Set params ###############################

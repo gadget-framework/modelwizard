@@ -43,7 +43,7 @@ actions_likelihood_ling <- list(
 actions <- c(actions, actions_ling, actions_likelihood_ling)
 
 
-# Create fleet definition for comm ####################
+# Create commercial fleet definition for comm ####################
 comm <- g3_fleet("comm") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
 
 
@@ -52,8 +52,7 @@ actions_comm <- list(
     comm,
     list(ling),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata("landings_comm", landings_comm, "weight", areas = area_names))),
+    catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata("landings_comm", landings_comm, "weight", areas = area_names)) ),
   NULL)
 actions_likelihood_comm <- list(
   g3l_catchdistribution(
@@ -70,7 +69,7 @@ actions_likelihood_comm <- list(
 actions <- c(actions, actions_comm, actions_likelihood_comm)
 
 
-# Create fleet definition for surv ####################
+# Create commercial fleet definition for surv ####################
 surv <- g3_fleet("surv") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
 
 
@@ -79,8 +78,7 @@ actions_surv <- list(
     surv,
     list(ling),
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = g3a_predate_catchability_numberfleet(
-      g3_timeareadata("landings_surv", landings_surv, "weight", areas = area_names))),
+    catchability_f = g3a_predate_catchability_totalfleet(g3_timeareadata("landings_surv", landings_surv, "weight", areas = area_names)) ),
   NULL)
 actions_likelihood_surv <- list(
   g3l_catchdistribution(
@@ -97,18 +95,24 @@ actions_likelihood_surv <- list(
 actions <- c(actions, actions_surv, actions_likelihood_surv)
 
 
-# Create abundance index for acoustic ####################
+# Create survey fleet definition for acoustic ####################
+acoustic <- g3_fleet("acoustic") |> g3s_livesonareas(area_names[c("IV4", "IV5")])
+
 
 actions_acoustic <- list(
+  g3a_predate_fleet(
+    acoustic,
+    list(ling),
+    suitabilities = g3_suitability_exponentiall50(),
+    catchability_f = g3a_predate_catchability_totalfleet(1) ),
   NULL)
 actions_likelihood_acoustic <- list(
-
-  g3l_abundancedistribution(
+  g3l_catchdistribution(
     "dist_acoustic",
     dist_acoustic,
-    
+    fleets = list(acoustic),
     stocks = list(ling),
-    function_f = g3l_distribution_surveyindices_log(alpha = NULL, beta = 1),
+    function_f = g3l_distribution_sumofsquares(),
     area_group = area_names,
     report = TRUE,
     nll_breakdown = TRUE),

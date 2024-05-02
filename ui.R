@@ -83,15 +83,16 @@ navbarPage(id = "nav_tabs", windowTitle = branding_name, lang = 'en',
       uiOutput("stocks"),
       hr(),
 
-      h3(T("Commercial & survey fleets")),
-      p(class="help-block", T("At least one fleet with numeric age-length distribution data is required for g3.fit reporting to work")),
-      uiOutput("fleets"),
+      h3(T("Commercial fleets")),
+      p(class="help-block", T("Add any commercial fleets that have landings data available to this section")),
+      uiOutput("comm"),
       hr(),
 
-      h3(T("Abundance indices")),
-      p(class="help-block", T("At least one abundance index is required for g3.fit reporting to work")),
-      uiOutput("abund"),
+      h3(T("Survey fleets")),
+      p(class="help-block", T("Add any survey fleets that have CPUE data available to this section")),
+      uiOutput("surv"),
       hr(),
+
       "")),
 
   tabPanel(T("Data"), value = 'data',

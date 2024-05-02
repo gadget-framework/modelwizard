@@ -21,7 +21,7 @@ data_path <- ${deparse1(xlsx)}
 )')}
 
 mw_g3_code_readxl <- function (sheet_name, xlsx) {
-    if (!nzchar(xlsx)) return("")
+    if (!nzchar(sheet_name) || !nzchar(xlsx)) return("")
     template_str('${escape_sym(sheet_name)} <- read_excel(data_path, ${deparse1(sheet_name)}, na = c("", "NA"))\n')
 }
 
@@ -93,7 +93,7 @@ mw_g3_code_likelihood_dist <- function (dist_type, r, spec) {
     stock_list <- lapply(spec$stock$name, as.symbol)
     lc_name <- unname(paste(dist_type, r$name, sep = "_"))
     data_sym <- escape_sym(lc_name)
-    is_abundance <- is.null(r$landings)
+    is_abundance <- endsWith(dist_type, "si")
 
     template_str(r'(
   g3l_${if (is_abundance) "abundance" else "catch"}distribution(
@@ -112,12 +112,27 @@ mw_g3_code_fleet <- function (r, spec, xlsx) {
     actions_likelihood_sym <- escape_sym(paste("actions", "likelihood", r$name, sep = "_"))
     area_names <- spec$area$name
     stock_list <- lapply(spec$stock$name, as.symbol)
-    data_name <- paste("landings", r$name, sep = "_")
-    data_sym <- escape_sym(data_name)
-    catchability_fn <- if (identical(r$landings, "weight")) "g3a_predate_catchability_totalfleet" else "g3a_predate_catchability_numberfleet"
+    if ("landings" %in% names(r)) {  # i.e. commercial fleets
+        fleet_type <- "commercial"
+        data_name <- paste("landings", r$name, sep = "_")
+        data_sym <- escape_sym(data_name)
+        catchability_fn <- paste0(
+            if (identical(r$landings, "weight")) "g3a_predate_catchability_totalfleet" else "g3a_predate_catchability_numberfleet",
+            "(g3_timeareadata(",
+            deparse1(data_name), ", ",
+            data_sym, ", ",
+            deparse1(r$landings), ", ",
+            "areas = area_names",
+            "))" )
+    } else {  # i.e. survey fleets
+        fleet_type <- "survey"
+        data_name <- paste("si", r$name, sep = "_")
+        data_sym <- escape_sym(data_name)
+        catchability_fn <- "g3a_predate_catchability_totalfleet(1)"
+    }
 
     template_str(r'(
-# Create fleet definition for ${r$name} ####################
+# Create ${fleet_type} fleet definition for ${r$name} ####################
 ${fleet_sym} <- g3_fleet(${deparse1(r$name)}) |> g3s_livesonareas(area_names[${deparse1(area_names)}])
 
 ${mw_g3_code_readxl(data_name, xlsx)}${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
@@ -126,28 +141,9 @@ ${actions_sym} <- list(
     ${fleet_sym},
     ${deparse1(stock_list, backtick = TRUE)},
     suitabilities = g3_suitability_exponentiall50(),
-    catchability_f = ${catchability_fn}(
-      g3_timeareadata(${deparse1(data_name)}, ${data_sym}, ${deparse1(r$landings)}, areas = area_names))),
+    catchability_f = ${catchability_fn} ),
   NULL)
-${actions_likelihood_sym} <- list(${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
-  NULL)
-
-actions <- c(actions, ${actions_sym}, ${actions_likelihood_sym})
-)')}
-
-mw_g3_code_abund <- function (r, spec, xlsx) {
-    fleet_sym <- escape_sym(r$name)
-    actions_sym <- escape_sym(paste("actions", r$name, sep = "_"))
-    actions_likelihood_sym <- escape_sym(paste("actions", "likelihood", r$name, sep = "_"))
-    stock_list <- lapply(spec$stock$name, as.symbol)
-
-    template_str(r'(
-# Create abundance index for ${r$name} ####################
-${mw_g3_code_readxl_dist("dist", r, xlsx)}${mw_g3_code_readxl_dist("ldist", r, xlsx)}${mw_g3_code_readxl_dist("aldist", r, xlsx)}
-${actions_sym} <- list(
-  NULL)
-${actions_likelihood_sym} <- list(
-${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
+${actions_likelihood_sym} <- list(${mw_g3_code_likelihood_dist("si", r, spec)}${mw_g3_code_likelihood_dist("dist", r, spec)}${mw_g3_code_likelihood_dist("ldist", r, spec)}${mw_g3_code_likelihood_dist("aldist", r, spec)}
   NULL)
 
 actions <- c(actions, ${actions_sym}, ${actions_likelihood_sym})
@@ -209,7 +205,7 @@ mw_g3_code_run <- function (spec) {
     comp_names <- function (tbl) {
         unname(unlist(lapply(seq_len(nrow(tbl)), function (i) {
             r <- as.list(tbl[i,])
-            out <- vapply(c('dist', 'ldist', 'aldist'), function (dist_type) {
+            out <- vapply(c('si', 'dist', 'ldist', 'aldist'), function (dist_type) {
                 if (!(dist_type %in% names(r))) return("")
                 if (r[[dist_type]] == "none") return("")
                 return(paste(dist_type, r$name, sep = "_"))
@@ -217,10 +213,10 @@ mw_g3_code_run <- function (spec) {
             out[nzchar(out)]
         })))
     }
-    fleet_lcomp <- comp_names(spec$fleet)
-    abund_lcomp <- comp_names(spec$abund)
+    comm_lcomp <- comp_names(spec$comm)
+    surv_lcomp <- comp_names(spec$surv)
 
-grouping <- list(fleet = spec$fleet$name, abund = spec$abund$name)
+grouping <- list(surv = spec$surv$name, comm = spec$comm$name)
     template_str(r'(
 # Optimise model ################################
 obj.fn <- gadget3::g3_tmb_adfun(model_code, params.in)
@@ -230,8 +226,8 @@ params.out <- gadgetutils::g3_iterative(getwd(),
     model = model_code,
     params.in = params.in,
     grouping = list(
-        fleet = ${deparse1(fleet_lcomp)},
-        abund = ${deparse1(abund_lcomp)}),
+        comm = ${deparse1(comm_lcomp)},
+        surv = ${deparse1(surv_lcomp)}),
     method = "BFGS",
     control = list(maxit = 100, reltol = 1e-10),
     use_parscale = TRUE,
@@ -251,7 +247,7 @@ mw_g3_script <- function (
         compile = FALSE,
         run = FALSE) {
     stopifnot(is.list(spec) || is.environment(spec))
-    stopifnot(length(intersect(names(spec), c("abund", "area", "fleet", "stock", "time"))) == 5)
+    stopifnot(length(intersect(names(spec), c("area", "comm", "surv", "stock", "time"))) == 5)
  
     # Run fn(row, ...) for each row in tbl
     row_apply <- function (tbl, fn, ...) vapply(
@@ -260,7 +256,7 @@ mw_g3_script <- function (
         character(1))
 
     # Check any supplied data
-    for (dat in setdiff(names(spec), c("abund", "area", "fleet", "stock", "time"))) {
+    for (dat in setdiff(names(spec), c("area", "comm", "surv", "stock", "time"))) {
         if ('number' %in% names(spec[[dat]])) {
             numcol <- spec[[dat]]$number
         } else if ('weight' %in% names(spec[[dat]])) {
@@ -277,8 +273,8 @@ mw_g3_script <- function (
         mw_g3_code_area(spec),
         row_apply(spec$time, mw_g3_code_time, spec),
         row_apply(spec$stock, mw_g3_code_stock, spec, xlsx),
-        row_apply(spec$fleet, mw_g3_code_fleet, spec, xlsx),
-        row_apply(spec$abund, mw_g3_code_abund, spec, xlsx),
+        row_apply(spec$comm, mw_g3_code_fleet, spec, xlsx),
+        row_apply(spec$surv, mw_g3_code_fleet, spec, xlsx),
         (if (compile) mw_g3_code_compile(spec, xlsx) else ""),
         (if (run) mw_g3_code_run(spec) else ""),
         ""), collapse = "\n")

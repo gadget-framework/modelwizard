@@ -12,7 +12,7 @@ ok_baseline <- function (test_name, output) {
     ok(ut_cmp_identical(output, base_output), sprintf("%s: Matches baseline", test_name))
 }
 xlsx_to_spec <- function (xlsx_path = 'anch.xlsx') {
-    spec_tbls <- c('time', 'area', 'stock', 'fleet', 'abund')
+    spec_tbls <- c('time', 'area', 'stock', 'comm', 'surv')
     structure(
         lapply(spec_tbls, function(n) readxl::read_xlsx(xlsx_path, n)),
         names = spec_tbls)
@@ -33,14 +33,14 @@ code <- mw_g3_script(list(
         age_min = 3, age_max = 5,
         renewal_step = 0,
         stringsAsFactors = FALSE),
-    fleet = data.frame(
+    comm = data.frame(
         name = c("comm", "surv"),
         step_active = 0,
         ldist = c("weight", "none"),
         aldist = c("none", "weight"),
         landings = "weight",
         stringsAsFactors = FALSE),
-    abund = data.frame(
+    surv = data.frame(
         name = c("acoustic"),
         step_active = 0,
         dist = c("weight"),
@@ -62,14 +62,14 @@ code <- mw_g3_script(list(
         age_min = 3, age_max = 5,
         renewal_step = 1,
         stringsAsFactors = FALSE),
-    fleet = data.frame(
+    comm = data.frame(
         name = c("comm", "surv"),
         step_active = 0,
         ldist = c("weight", "none"),
         aldist = c("none", "weight"),
         landings = "weight",
         stringsAsFactors = FALSE),
-    abund = data.frame(
+    surv = data.frame(
         name = c("acoustic"),
         step_active = 0,
         dist = c("weight"),
@@ -95,14 +95,14 @@ code <- mw_g3_script(list(
         age_min = 3, age_max = 5,
         renewal_step = 1,
         stringsAsFactors = FALSE),
-    fleet = data.frame(
+    comm = data.frame(
         name = c("comm", "surv"),
         step_active = 0,
         ldist = c("weight", "none"),
         aldist = c("none", "weight"),
         landings = "weight",
         stringsAsFactors = FALSE),
-    abund = data.frame(
+    surv = data.frame(
         name = c("acoustic"),
         step_active = 0,
         dist = c("weight"),

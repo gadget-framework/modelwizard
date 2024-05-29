@@ -28,14 +28,6 @@ The user-guide content needs pregenerating with:
 Rscript pregenerate.R
 ```
 
-## Branding
-
-Symlink (or create a new) ``branding.R``, e.g:
-
-```
-ln -rs branding.IEOinputSA.R branding.R
-```
-
 ## Shinyapps.io deployment
 
 Once installed locally, you can deploy to your shinyapps account with:

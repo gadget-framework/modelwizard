@@ -42,7 +42,7 @@ Once installed locally, you can deploy to your shinyapps account with:
 
 ```
 rsconnect::setAccountInfo(...)
-rsconnect::deployApp('.')
+rsconnect::deployApp('.', account = "...", appName = "modelwizard")
 ```
 
 ## Acknowedgements

@@ -3,6 +3,16 @@ Rebuild HTML with:
 knitr::pandoc('user-guide.md', 'html') ; fs::file_touch('ui.R')
 -->
 
+This document will step through the process of filling in ModelWizard.
+
+A video on the use of ModelWizard is also available:
+
+<iframe width="720" height="380" src="https://www.youtube.com/embed/UPuyIdW4dnU"
+  frameborder="0"
+  allow="autoplay; encrypted-media"
+  allowfullscreen
+  ></iframe>
+
 ## Overview
 
 At the very top of the page, you will see a set of tabs:
